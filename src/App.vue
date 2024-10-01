@@ -3,16 +3,12 @@
 </script>
 
 <template>
-  <div>
-    <div class="w-1/3">
-      sidebar
+  <div class="h-full w-full">
+    <div class="w-full h-10 flex bg-blue-500 text-center items-center justify-center">
+      <span class="font-semibold text-xl text-white">Watermark for Image</span>
     </div>
-    <div class="w-2/3">
-      content
-    </div>
+  <RouterView/>
   </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
