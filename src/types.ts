@@ -1,4 +1,4 @@
-interface WatermarkOptions {
+export interface WatermarkOptions {
     type: string
     content: string
     position_x: number

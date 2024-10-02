@@ -6,6 +6,6 @@ export const apiEndpoints = {
         getDetail: baseUrl + 'mediafiles/detail/',
         edit: baseUrl + 'mediafiles/edit/',
         delete: baseUrl + 'mediafiles/delete/',
-        apply: baseUrl + 'mediafiles/apply-watermark',
+        applyWatermark: baseUrl + 'mediafiles/apply-watermark/',
     },
 }
