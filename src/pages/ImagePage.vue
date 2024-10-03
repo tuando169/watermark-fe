@@ -41,63 +41,91 @@ async function handleSave() {
     type: 'success',
   })
 }
-</script>
 
+function addImage() {
+
+}
+</script>
 <template>
-  <div class="h-full w-full flex">
-    <div class="w-1/4 h-[calc(100vh_-_40px)]">
+  <div class="h-full w-full p-4 sm:p-10 relative bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div
+        class="absolute top-0 left-0 h-full w-[64px] sm:w-[88px] group hover:w-[200px] sm:hover:w-[250px] transition-all duration-300 bg-blue-500 dark:bg-gray-800 shadow-xl overflow-hidden">
       <div v-for="image in imageList" :key="image.id"
-           :class="selectedImage._id == image._id ? 'bg-blue-200' : ''"
-           class="flex w-full py-3 hover:bg-blue-300 pl-5 transition-all items-center gap-2 cursor-pointer"
-           @click="selectedImage = image"
-      >
-        <img :src="image.file_path" alt="img" class="h-20 w-20 rounded-2xl object-cover ">
-        <span class="text-nowrap overflow-hidden text-xl">{{ image.file_name }}</span>
+           :class="selectedImage._id == image._id ? 'bg-blue-600 dark:bg-gray-700' : 'bg-blue-500 dark:bg-gray-800'"
+           class="flex items-center gap-2 sm:gap-4 py-2 sm:pl-4 pl-3 sm:py-3 px-2 sm:px-4 hover:bg-blue-600 dark:hover:bg-gray-700 transition-all cursor-pointer group-hover:shadow-lg"
+           @click="selectedImage=image">
+        <img :src="image.file_path" alt="img"
+             class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover border-2 border-white dark:border-gray-100 group-hover:scale-110 transition-transform duration-200">
+        <span class="text-sm sm:text-lg font-medium text-white dark:text-gray-200 truncate group-hover:block hidden">{{
+            image.file_name
+          }}</span>
+      </div>
+      <div
+          class="flex items-center gap-2 sm:gap-4 py-2 sm:pl-4 pl-3 sm:py-3 px-2 sm:px-4 hover:bg-blue-600 dark:hover:bg-gray-700 transition-all cursor-pointer group-hover:shadow-lg">
+        <svg
+            class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover border-2 border-white dark:border-gray-100 group-hover:scale-110 transition-transform duration-200"
+            xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#fff">
+          <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
+        </svg>
+        <span class="text-sm sm:text-lg font-medium text-white dark:text-gray-200 truncate group-hover:block hidden">Add image</span>
+        <input type="file" ref="fileInput" class="h-full w-full hidden" @change="addImage">
       </div>
     </div>
-    <div class="w-3/4 flex flex-col items-center bg-gray-100">
-      <img :src="selectedImage.file_path" alt="img" class="h-[400px] rounded-2xl object-cover mt-5">
-      <div class="w-full px-20 pt-5">
-        <div class="flex items-center w-full gap-10 mb-5">
-          <div class="flex gap-5 w-[76%]">
-            <span>Content</span>
-            <el-input v-model="form.content"/>
+
+    <div
+        class="h-full ml-[64px] sm:ml-[88px] transition-all duration-300 group-hover:ml-[200px] sm:group-hover:ml-[250px] flex-1 flex flex-col sm:flex-row gap-4 sm:gap-8">
+      <div
+          class="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 flex flex-col items-center justify-center w-full sm:w-2/3">
+        <img :src="selectedImage.file_path" alt="Selected Image"
+             class="rounded-lg object-contain shadow-md max-w-full min-h-[100%]">
+      </div>
+
+      <div
+          class="w-full sm:w-1/3 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 space-y-4 sm:space-y-6 h-full flex flex-col justify-between">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-200">Edit Image</h2>
+
+        <div class="space-y-4 sm:space-y-4 flex-grow">
+          <div class="flex flex-col">
+            <label class="text-gray-700 dark:text-gray-200 font-bold">Content</label>
+            <el-input v-model="form.content"
+                      class="border-gray-300 dark:border-gray-600 py-1 sm:py-2 rounded-lg focus:ring focus:ring-blue-300 dark:focus:ring-gray-600"/>
           </div>
-          <div class="flex gap-5">
-            <span>Color</span>
-            <el-color-picker v-model="form.color"/>
+          <div class="flex flex-col">
+            <label class="text-gray-700 dark:text-gray-200 font-bold">Color</label>
+            <el-color-picker v-model="form.color" class="rounded-lg"/>
+          </div>
+
+          <div class="flex flex-col">
+            <label class="text-gray-700 dark:text-gray-200 font-bold">Position X</label>
+            <el-slider v-model="form.position_x" show-input class="w-full"/>
+          </div>
+
+          <div class="flex flex-col">
+            <label class="text-gray-700 dark:text-gray-200 font-bold">Position Y</label>
+            <el-slider v-model="form.position_y" show-input class="w-full"/>
+          </div>
+
+          <div class="flex flex-col">
+            <label class="text-gray-700 dark:text-gray-200 font-bold">Opacity</label>
+            <el-slider v-model="form.opacity" show-input class="w-full"/>
+          </div>
+
+          <div class="flex flex-col">
+            <label class="text-gray-700 dark:text-gray-200 font-bold">Size</label>
+            <el-slider v-model="form.size" show-input class="w-full"/>
           </div>
         </div>
-        <div class="flex w-full items-center mb-5">
-          <span>Position</span>
-          <div class="w-full ml-3">
-            <div class="w-[90%] flex items-center gap-5 mb-3">
-              <span>X</span>
-              <el-slider v-model="form.position_x" show-input/>
-            </div>
-            <div class="w-[90%] flex items-center gap-5">
-              <span>Y</span>
-              <el-slider v-model="form.position_y" show-input/>
-            </div>
-          </div>
-        </div>
-        <div class="flex w-full items-center gap-5">
-          <div class="w-1/2 flex items-center gap-5">
-            <span>Opacity</span>
-            <el-slider v-model="form.opacity" show-input style="width: 70%"/>
-          </div>
-          <div class="w-1/2 flex items-center gap-5">
-            <span>Size</span>
-            <el-slider v-model="form.size" show-input style="width: 70%"/>
-          </div>
-        </div>
-        <div class="flex w-full">
-          <el-button type="primary" class="ml-auto" @click="handleSave">Save</el-button>
+
+        <div class="flex justify-end">
+          <el-button type="primary" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+            Save
+          </el-button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 
 <style scoped>
 
