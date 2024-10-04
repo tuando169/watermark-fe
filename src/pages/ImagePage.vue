@@ -3,10 +3,12 @@ import {ref} from "vue";
 import axios from "axios";
 import {apiEndpoints} from "@/apiEndpoints";
 import type {Image, WatermarkOptions} from "@/types";
-import {ElNotification} from 'element-plus'
+import {ElNotification} from 'element-plus';
 
-const imageList = ref<Image[]>([])
-const selectedImage = ref<Image>({} as Image)
+// Properly type imageList and selectedImage
+const imageList = ref<Image[]>([]);
+const selectedImage = ref<Image | null>(null);  // Handle null when no image is selected initially
+
 const form = ref<WatermarkOptions>({
   type: 'text',
   color: '',
@@ -15,53 +17,68 @@ const form = ref<WatermarkOptions>({
   position_x: 0,
   position_y: 0,
   size: 0
-})
+});
 
-fetchData()
-
+// Fetch image list from the server
 async function fetchData() {
-  const res = await axios.get(apiEndpoints.mediaFile.getList)
-  imageList.value = res.data
+  const res = await axios.get(apiEndpoints.mediaFile.getList);
+  imageList.value = res.data;
 }
 
+fetchData();
+
+// Handle saving watermark data
 async function handleSave() {
   if (!selectedImage.value) {
     ElNotification({
       title: 'Error',
       message: 'No image selected',
-      type: 'error'
-    })
-    return
+      type: 'error',
+    });
+    return;
   }
-  const uploadData = new FormData()
-  uploadData.set('type', 'text')
-  uploadData.set('size', form.value.size.toString())
-  uploadData.set('content', form.value.content)
-  uploadData.set('color', form.value.color)
-  uploadData.set('position_x', form.value.position_x.toString())
-  uploadData.set('position_y', form.value.position_y.toString())
-  uploadData.set('opacity', '0.5')
 
-  // await axios.post(apiEndpoints.mediaFile.applyWatermark + selectedImage.value._id, uploadData)
-  // ElNotification({
-  //   title: 'Success',
-  //   message: 'Apply watermark successfully!',
-  //   type: 'success',
-  // })
+  const uploadData = new FormData();
+  uploadData.set('type', form.value.type);
+  uploadData.set('size', form.value.size.toString());  // Convert number to string
+  uploadData.set('content', form.value.content);
+  uploadData.set('color', form.value.color);
+  uploadData.set('position_x', form.value.position_x.toString());  // Convert number to string
+  uploadData.set('position_y', form.value.position_y.toString());  // Convert number to string
+  uploadData.set('opacity', form.value.opacity.toString());  // Convert number to string
+
+  try {
+    await axios.post(`${apiEndpoints.mediaFile.applyWatermark}/${selectedImage.value._id}`, uploadData);
+    ElNotification({
+      title: 'Success',
+      message: 'Apply watermark successfully!',
+      type: 'success',
+    });
+  } catch (error) {
+    ElNotification({
+      title: 'Error',
+      message: 'Failed to apply watermark.',
+      type: 'error',
+    });
+  }
 }
 
 function addImage() {
-
+  // Logic for adding an image
 }
+
 </script>
+
 <template>
   <div class="h-full w-full p-4 sm:p-10 relative bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
     <div
         class="absolute top-0 left-0 h-full w-[64px] sm:w-[88px] group hover:w-[200px] sm:hover:w-[250px] transition-all duration-300 bg-blue-500 dark:bg-gray-800 shadow-xl overflow-hidden">
-      <div v-for="image in imageList" :key="image.id"
-           :class="selectedImage._id == image._id ? 'bg-blue-600 dark:bg-gray-700' : 'bg-blue-500 dark:bg-gray-800'"
-           class="flex items-center gap-2 sm:gap-4 py-2 sm:pl-4 pl-3 sm:py-3 px-2 sm:px-4 hover:bg-blue-600 dark:hover:bg-gray-700 transition-all cursor-pointer group-hover:shadow-lg"
-           @click="selectedImage=image">
+      <div
+          v-for="image in imageList" :key="image._id"
+          :class="selectedImage && selectedImage._id === image._id ? 'bg-blue-600 dark:bg-gray-700' : 'bg-blue-500 dark:bg-gray-800'"
+          class="flex items-center gap-2 sm:gap-4 py-2 sm:pl-4 pl-3 sm:py-3 px-2 sm:px-4 hover:bg-blue-600 dark:hover:bg-gray-700 transition-all cursor-pointer group-hover:shadow-lg"
+          @click="selectedImage = image"
+      >
         <img :src="image.file_path" alt="img"
              class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover border-2 border-white dark:border-gray-100 group-hover:scale-110 transition-transform duration-200">
         <span class="text-sm sm:text-lg font-medium text-white dark:text-gray-200 truncate group-hover:block hidden">{{
@@ -84,7 +101,7 @@ function addImage() {
         class="h-full ml-[64px] sm:ml-[88px] transition-all duration-300 group-hover:ml-[200px] sm:group-hover:ml-[250px] flex-1 flex flex-col sm:flex-row gap-4 sm:gap-8">
       <div
           class="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 flex flex-col items-center justify-center w-full sm:w-2/3">
-        <img :src="selectedImage.file_path" alt="Selected Image"
+        <img v-if="selectedImage" :src="selectedImage.file_path" alt="Selected Image"
              class="rounded-lg object-contain shadow-md max-w-full min-h-[100%]">
       </div>
 
@@ -125,7 +142,8 @@ function addImage() {
         </div>
 
         <div class="flex justify-end">
-          <el-button type="primary" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+          <el-button type="primary" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg"
+                     @click="handleSave">
             Save
           </el-button>
         </div>
@@ -134,7 +152,5 @@ function addImage() {
   </div>
 </template>
 
-
 <style scoped>
-
 </style>
