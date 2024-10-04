@@ -5,8 +5,8 @@ import {apiEndpoints} from "@/apiEndpoints";
 import type {Image, WatermarkOptions} from "@/types";
 import {ElNotification} from 'element-plus'
 
-const imageList = ref<Image>([])
-const selectedImage = ref<Image>({})
+const imageList = ref<Image[]>([])
+const selectedImage = ref<Image>({} as Image)
 const form = ref<WatermarkOptions>({
   type: 'text',
   color: '',
@@ -25,21 +25,29 @@ async function fetchData() {
 }
 
 async function handleSave() {
+  if (!selectedImage.value) {
+    ElNotification({
+      title: 'Error',
+      message: 'No image selected',
+      type: 'error'
+    })
+    return
+  }
   const uploadData = new FormData()
   uploadData.set('type', 'text')
-  uploadData.set('size', form.value.size)
+  uploadData.set('size', form.value.size.toString())
   uploadData.set('content', form.value.content)
   uploadData.set('color', form.value.color)
-  uploadData.set('position_x', form.value.position_x)
-  uploadData.set('position_y', form.value.position_y)
-  uploadData.set('opacity', 0.5)
+  uploadData.set('position_x', form.value.position_x.toString())
+  uploadData.set('position_y', form.value.position_y.toString())
+  uploadData.set('opacity', '0.5')
 
-  await axios.post(apiEndpoints.mediaFile.applyWatermark + selectedImage.value._id, uploadData)
-  ElNotification({
-    title: 'Success',
-    message: 'Apply watermark successfully!',
-    type: 'success',
-  })
+  // await axios.post(apiEndpoints.mediaFile.applyWatermark + selectedImage.value._id, uploadData)
+  // ElNotification({
+  //   title: 'Success',
+  //   message: 'Apply watermark successfully!',
+  //   type: 'success',
+  // })
 }
 
 function addImage() {
