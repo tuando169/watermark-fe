@@ -1,28 +1,39 @@
 <script setup lang="ts">
 import {ref} from 'vue';
-import {apiEndpoints} from '@/apiEndpoints'; // Giả sử bạn đã định nghĩa apiEndpoints
+import {apiEndpoints} from '@/apiEndpoints';
 
 const isDarkMode = ref(false);
+const showFakeDarkMode = ref(false);
 
 function toggleDarkMode() {
-  const html = document.documentElement;
-  isDarkMode.value = !isDarkMode.value;
-  if (html.classList.contains('dark')) {
-    html.classList.remove('dark');
-  } else {
-    html.classList.add('dark');
-  }
+  showFakeDarkMode.value = true;
+
+  setTimeout(() => {
+    const html = document.documentElement;
+    isDarkMode.value = !isDarkMode.value;
+    if (isDarkMode.value) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }, 500);
+
+  setTimeout(() => {
+    showFakeDarkMode.value = false;
+  }, 1000);
 }
 </script>
 
 <template>
-  <div class="h-screen w-screen">
+  <div class="h-screen w-screen relative">
+    <div v-if="showFakeDarkMode" class="fake-dark-mode-overlay"></div>
+
     <div
         class="w-full h-14 flex bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-gray-800 dark:to-black items-center justify-between px-4 shadow-md transition-colors duration-500 ease-in-out relative"
     >
       <button
           @click="toggleDarkMode"
-          class="absolute left-4 flex items-center justify-between px-1 py-1 w-16 h-8 bg-gradient-to-r from-yellow-300 to-yellow-500 dark:from-gray-600 dark:to-gray-800 rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"
+          class="absolute left-4 z-10 flex items-center justify-between px-1 py-1 w-16 h-8 bg-gradient-to-r from-yellow-300 to-yellow-500 dark:from-gray-600 dark:to-gray-800 rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"
       >
         <span
             class="absolute left-0 flex items-center justify-center w-7 h-7 bg-white text-yellow-500 dark:text-blue-300 rounded-full shadow-md transform transition-transform duration-700 ease-in-out"
@@ -43,14 +54,14 @@ function toggleDarkMode() {
 
       <div class="flex space-x-6 absolute left-1/2 transform -translate-x-1/2 text-white text-lg dark:text-gray-300">
         <router-link
-            :to="{name: 'image'}"
+            :to="{ name: 'image' }"
             class="relative px-2 font-semibold hover:text-yellow-300 transition duration-300 before:content-[''] before:absolute before:-bottom-1 before:left-0 before:w-full before:h-0.5 before:bg-yellow-300 before:scale-x-0 before:origin-left hover:before:scale-x-100 before:transition-transform before:duration-300"
             active-class="router-link-active" exact-active-class="router-link-exact-active"
         >
           Image
         </router-link>
         <router-link
-            :to="{name: 'profile'}"
+            :to="{ name: 'profile' }"
             class="relative px-2 font-semibold hover:text-yellow-300 transition duration-300 before:content-[''] before:absolute before:-bottom-1 before:left-0 before:w-full before:h-0.5 before:bg-yellow-300 before:scale-x-0 before:origin-left hover:before:scale-x-100 before:transition-transform before:duration-300"
             active-class="router-link-active" exact-active-class="router-link-exact-active"
         >
@@ -64,6 +75,7 @@ function toggleDarkMode() {
         Login by Google
       </a>
     </div>
+
     <transition name="fade" mode="out-in">
       <RouterView class="h-[calc(100vh_-_56px)] w-full"/>
     </transition>
@@ -71,6 +83,24 @@ function toggleDarkMode() {
 </template>
 
 <style scoped>
+/* Hiệu ứng lớp phủ Dark Mode giả */
+.fake-dark-mode-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7); /* Màu tối */
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.fake-dark-mode-overlay.active {
+  opacity: 1;
+}
+
 button {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -123,5 +153,4 @@ button:hover {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
-
 </style>

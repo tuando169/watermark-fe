@@ -4,6 +4,7 @@ import {apiEndpoints} from "@/apiEndpoints";
 import type {Font, Image, WatermarkOptions} from "@/types";
 import {ElNotification} from "element-plus";
 import {axiosClient} from "@/axiosClient";
+import axios from "axios";
 
 const imageList = ref<Image[]>([]);
 const fontList = ref<Font[]>([]);
@@ -26,12 +27,12 @@ fetchData()
 getListFont()
 
 async function fetchData() {
-  const res = await axiosClient.get(apiEndpoints.mediaFile.getList);
+  const res = await axios.get(apiEndpoints.mediaFile.getList, {withCredentials: true});
   imageList.value = res.data;
 }
 
 async function getListFont() {
-  const res = await axiosClient.get(apiEndpoints.mediaFile.font.getList);
+  const res = await axios.get(apiEndpoints.mediaFile.font.getList);
   fontList.value = res.data;
 }
 

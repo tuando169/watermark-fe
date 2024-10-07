@@ -1,7 +1,9 @@
 <template>
   <div class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center py-10">
-    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden w-full max-w-4xl flex flex-col sm:flex-row">
-      <div class="sm:w-1/3 bg-gradient-to-b from-blue-600 to-blue-500 dark:from-gray-700 dark:to-gray-600 p-6 text-center flex flex-col items-center justify-center">
+    <div
+        class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden w-full max-w-4xl flex flex-col sm:flex-row">
+      <div
+          class="sm:w-1/3 bg-gradient-to-b from-blue-600 to-blue-500 dark:from-gray-700 dark:to-gray-600 p-6 text-center flex flex-col items-center justify-center">
         <img
             :src="user.avatar"
             alt="User Avatar"
@@ -37,7 +39,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import {ref} from 'vue'
+import {axiosClient} from "@/axiosClient";
+import {apiEndpoints} from "@/apiEndpoints";
 
 const user = ref({
   name: 'John Doe',
@@ -45,6 +49,10 @@ const user = ref({
   avatar: 'https://i.pravatar.cc/150?img=3'
 })
 
+axiosClient.get(apiEndpoints.auth.profile, {withCredentials: true})
+    .then((res) => {
+      user.value = res.data
+    })
 </script>
 
 <style scoped>
