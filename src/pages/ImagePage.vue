@@ -9,7 +9,7 @@ import axios from "axios";
 const imageList = ref<Image[]>([]);
 const fontList = ref<Font[]>([]);
 
-const selectedImage = ref<Image | null>({} as Image);
+const selectedImage = ref<Image | null>({});
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const form = ref<WatermarkOptions>({
@@ -133,8 +133,8 @@ function triggerFileInput() {
         class="h-full ml-[64px] sm:ml-[88px] transition-all duration-300 group-hover:ml-[200px] sm:group-hover:ml-[250px] flex-1 flex flex-col sm:flex-row gap-4 sm:gap-8">
       <div
           class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 flex flex-col items-center justify-center w-full sm:w-2/3">
-        <!--        <img v-if="selectedImage" :src="selectedImage.file_path" alt="Selected Image"-->
-        <!--             class="rounded-lg object-contain shadow-md max-w-full min-h-[100%]">-->
+        <img v-if="selectedImage" :src="selectedImage.file_path" alt="Selected Image"
+             class="rounded-lg object-contain shadow-md max-w-full min-h-[100%]">
         <div class="relative">
           <img src="/maxresdefault.jpg" alt="Selected Image"
                class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[35vh]">
@@ -144,7 +144,7 @@ function triggerFileInput() {
           >    {{ form.content }}  </span>
         </div>
         <div class="relative">
-          <img src="/maxresdefault.jpg" alt="Selected Image"
+          <img v-if="selectedImage" :src="selectedImage.file_watermarked" alt="Watermark Image"
                class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[35vh]">
         </div>
 
