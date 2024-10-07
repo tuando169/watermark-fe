@@ -140,11 +140,11 @@ function triggerFileInput() {
         class="h-full ml-[64px] sm:ml-[88px] transition-all duration-300 group-hover:ml-[200px] sm:group-hover:ml-[250px] flex-1 flex flex-col sm:flex-row gap-4 sm:gap-8">
       <div
           class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 flex flex-col items-center justify-center w-full sm:w-2/3">
-        <img v-if="selectedImage" :src="selectedImage?.file_path" alt="Selected Image"
-             class="rounded-lg object-contain shadow-md max-w-full min-h-[100%]">
         <div class="relative">
-          <img src="/maxresdefault.jpg" alt="Selected Image"
+          <img v-if="selectedImage" :src="selectedImage?.file_path" alt="Selected Image"
                class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[35vh]">
+          <!--          <img src="/maxresdefault.jpg" alt="Selected Image"-->
+          <!--               class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[35vh]">-->
 
           <span class="absolute z-20"
                 :style="{ color: form.color, opacity: form.opacity, fontSize: `${form.size}px`, top: `${form.position_y}px`, left: `${form.position_x}px`, fontFamily: form.font }"
