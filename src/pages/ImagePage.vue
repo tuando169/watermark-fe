@@ -73,16 +73,16 @@ async function handleSave() {
 }
 
 async function addImage(event: Event) {
-  const uploadImage = (event.target as HTMLInputElement).files[0];
-
-  const res = await axios.get(apiEndpoints.mediaFile.create)
-  if (res.status >= 200 && res.status < 300) {
-    ElNotification({
-      title: 'Success',
-      message: 'Image added successfully!',
-      type: 'success'
-    })
-  }
+  // const uploadImage = (event.target as HTMLInputElement).files[0];
+  //
+  // const res = await axios.get(apiEndpoints.mediaFile.create)
+  // if (res.status >= 200 && res.status < 300) {
+  //   ElNotification({
+  //     title: 'Success',
+  //     message: 'Image added successfully!',
+  //     type: 'success'
+  //   })
+  // }
 
 }
 
