@@ -9,7 +9,7 @@ import axios from "axios";
 const imageList = ref<Image[]>([]);
 const fontList = ref<Font[]>([]);
 
-const selectedImage = ref<Image | null>(null);
+const selectedImage = ref<Image>({} as Image);
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const form = ref<WatermarkOptions>({
@@ -17,22 +17,22 @@ const form = ref<WatermarkOptions>({
   font: '',
   color: '',
   content: '',
-  opacity: 0,
+  opacity: 1.0,
   position_x: 0,
   position_y: 0,
-  size: 0
+  size: 15
 });
 
 fetchData()
 getListFont()
 
 async function fetchData() {
-  const res = await axios.get(apiEndpoints.mediaFile.getList, {withCredentials: true});
+  const res = await axiosClient.get(apiEndpoints.mediaFile.getList);
   imageList.value = res.data;
 }
 
 async function getListFont() {
-  const res = await axios.get(apiEndpoints.mediaFile.font.getList);
+  const res = await axiosClient.get(apiEndpoints.mediaFile.font.getList, {withCredentials: true});
   fontList.value = res.data;
 }
 
@@ -73,16 +73,20 @@ async function handleSave() {
 }
 
 async function addImage(event: Event) {
-  // const uploadImage = (event.target as HTMLInputElement).files[0];
-  //
-  // const res = await axios.get(apiEndpoints.mediaFile.create)
-  // if (res.status >= 200 && res.status < 300) {
-  //   ElNotification({
-  //     title: 'Success',
-  //     message: 'Image added successfully!',
-  //     type: 'success'
-  //   })
-  // }
+  const uploadImage = (event.target as HTMLInputElement).files[0];
+  if (!uploadImage) return
+  const uploadData = new FormData()
+  uploadData.set("file", uploadImage)
+  uploadData.set("description", "An example file")
+  const res = await axios.post(apiEndpoints.mediaFile.create, uploadData)
+  if (res.status >= 200 && res.status < 300) {
+    await fetchData()
+    ElNotification({
+      title: 'Success',
+      message: 'Image added successfully!',
+      type: 'success'
+    })
+  }
 
 }
 
@@ -96,7 +100,7 @@ function triggerFileInput() {
 <template>
   <div class="p-4 sm:p-10 relative bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
     <div
-        class="absolute top-0 left-0 h-full w-[64px] sm:w-[88px] group hover:w-[200px] sm:hover:w-[250px] transition-all duration-300 bg-blue-500 dark:bg-gray-800 shadow-xl overflow-hidden">
+        class="absolute z-50 top-0 left-0 h-full w-[64px] sm:w-[88px] group hover:w-[200px] sm:hover:w-[250px] transition-all duration-300 bg-blue-500 dark:bg-gray-800 shadow-xl overflow-hidden">
       <div
           v-for="image in imageList"
           :key="image._id"
@@ -128,9 +132,22 @@ function triggerFileInput() {
     <div
         class="h-full ml-[64px] sm:ml-[88px] transition-all duration-300 group-hover:ml-[200px] sm:group-hover:ml-[250px] flex-1 flex flex-col sm:flex-row gap-4 sm:gap-8">
       <div
-          class="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 flex flex-col items-center justify-center w-full sm:w-2/3">
-        <img v-if="selectedImage" :src="selectedImage.file_path" alt="Selected Image"
-             class="rounded-lg object-contain shadow-md max-w-full min-h-[100%]">
+          class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 flex flex-col items-center justify-center w-full sm:w-2/3">
+        <!--        <img v-if="selectedImage" :src="selectedImage.file_path" alt="Selected Image"-->
+        <!--             class="rounded-lg object-contain shadow-md max-w-full min-h-[100%]">-->
+        <div class="relative">
+          <img src="/maxresdefault.jpg" alt="Selected Image"
+               class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[35vh]">
+
+          <span class="absolute z-20"
+                :style="{ color: form.color, opacity: form.opacity, fontSize: `${form.size}px`, top: `${form.position_y}px`, left: `${form.position_x}px`, fontFamily: form.font }"
+          >    {{ form.content }}  </span>
+        </div>
+        <div class="relative">
+          <img src="/maxresdefault.jpg" alt="Selected Image"
+               class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[35vh]">
+        </div>
+
       </div>
 
       <div
@@ -147,7 +164,9 @@ function triggerFileInput() {
             <div class="flex flex-col w-full">
               <label class="text-gray-700 dark:text-gray-200 font-bold">Font</label>
               <el-select v-model="form.font" placeholder="Select font">
-                <el-option v-for="font in fontList" :value="font._id" :label="font.file_name"/>
+                <el-option value="Arial, sans-serif" label="Arial, sans-serif"/>
+                <el-option value="Roboto, sans-serif" label="Roboto, sans-serif"/>
+                <!--                <el-option v-for="font in fontList" :value="font._id" :label="font.file_name"/>-->
               </el-select>
             </div>
             <div class="flex flex-col">
@@ -157,15 +176,15 @@ function triggerFileInput() {
           </div>
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Position X</label>
-            <el-slider v-model="form.position_x" show-input class="w-full"/>
+            <el-slider v-model="form.position_x" :max="selectedImage.width" show-input class="w-full"/>
           </div>
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Position Y</label>
-            <el-slider v-model="form.position_y" show-input class="w-full"/>
+            <el-slider v-model="form.position_y" :max="selectedImage.height" show-input class="w-full"/>
           </div>
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Opacity</label>
-            <el-slider v-model="form.opacity" show-input class="w-full"/>
+            <el-slider v-model="form.opacity" :min="0" :max="1" :step="0.1" show-input class="w-full"/>
           </div>
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Size</label>

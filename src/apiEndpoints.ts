@@ -15,5 +15,6 @@ export const apiEndpoints = {
         loginGoogle: baseUrl + 'auth/google/',
         profile: baseUrl + 'auth/profile/',
         logout: baseUrl + 'auth/logout/',
+        getToken: baseUrl + 'auth/get-token/',
     }
 }

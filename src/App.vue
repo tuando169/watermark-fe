@@ -2,9 +2,19 @@
 import {ref} from 'vue';
 import {apiEndpoints} from '@/apiEndpoints';
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const isDarkMode = ref(false);
 const showFakeDarkMode = ref(false);
+const isHasToken = ref(false)
+if (Cookies.get('feToken')) {
+  isHasToken.value = true;
+} else {
+  axios.get(apiEndpoints.auth.getToken)
+      .then((res) => {
+        Cookies.set('feToken', res.data.token);
+      });
+}
 
 function toggleDarkMode() {
   showFakeDarkMode.value = true;
@@ -24,10 +34,6 @@ function toggleDarkMode() {
   }, 1000);
 }
 
-async function login() {
-  const res = await axios.get("https://chisu3000.online/api/v1/auth/google/")
-  console.log(res.data.url)
-}
 </script>
 
 <template>
@@ -75,11 +81,16 @@ async function login() {
         </router-link>
       </div>
 
-      <button @click="login"
-              class="absolute right-4 flex items-center justify-between px-3 py-1 h-8 bg-gradient-to-r from-green-400 to-green-600 dark:from-gray-600 dark:to-gray-800 text-white font-semibold rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"
+      <a v-show="!isHasToken" :href="apiEndpoints.auth.loginGoogle"
+         class="absolute right-4 flex items-center justify-between px-3 py-1 h-8 bg-gradient-to-r from-green-400 to-green-600 dark:from-gray-600 dark:to-gray-800 text-white font-semibold rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"
       >
         Login by Google
-      </button>
+      </a>
+      <a v-show="isHasToken"
+         class="absolute right-4 flex items-center justify-between px-3 py-1 h-8 bg-gradient-to-r from-green-400 to-green-600 dark:from-gray-600 dark:to-gray-800 text-white font-semibold rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"
+      >
+        Logout
+      </a>
     </div>
 
     <transition name="fade" mode="out-in">
@@ -89,6 +100,9 @@ async function login() {
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap');
+
 .fake-dark-mode-overlay {
   position: fixed;
   top: 0;
