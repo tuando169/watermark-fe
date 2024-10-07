@@ -66,31 +66,7 @@ async function handleSave() {
 
 // Function to handle adding a new image
 function addImage(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
 
-  const formData = new FormData();
-  formData.append('image', file);
-
-  // Send the image to the server
-  axios.post(apiEndpoints.mediaFile.upload, formData)
-      .then(response => {
-        // Add the new image to the image list
-        imageList.value.push(response.data);
-        ElNotification({
-          title: 'Success',
-          message: 'Image uploaded successfully!',
-          type: 'success',
-        });
-      })
-      .catch(() => {
-        ElNotification({
-          title: 'Error',
-          message: 'Failed to upload image.',
-          type: 'error',
-        });
-      });
 }
 
 // Trigger file input click
