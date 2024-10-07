@@ -75,8 +75,9 @@ async function handleSave() {
 
 async function addImage(event: Event) {
   const file = event.target as HTMLInputElement
-  if (!file) return
-  const uploadImage = file?.files[0]
+  if (!file || !file.files || file.files.length === 0) return
+
+  const uploadImage = file.files[0]
   if (!uploadImage) return
   const uploadData = new FormData()
   uploadData.set("file", uploadImage)
