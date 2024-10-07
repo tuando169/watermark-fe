@@ -1,7 +1,9 @@
 const baseUrl = 'https://chisu3000.online/api/v1/'
 export const apiEndpoints = {
     mediaFile: {
-        getList: baseUrl + 'mediafiles/',
+        getAll: baseUrl + 'mediafiles/',
+        getListImage: baseUrl + 'mediafiles/image/',
+        getListVideo: baseUrl + 'mediafiles/video/',
         create: baseUrl + 'mediafiles/create',
         getDetail: baseUrl + 'mediafiles/detail/',
         edit: baseUrl + 'mediafiles/edit/',

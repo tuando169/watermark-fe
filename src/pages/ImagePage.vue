@@ -27,7 +27,7 @@ fetchData()
 getListFont()
 
 async function fetchData() {
-  const res = await axiosClient.get(apiEndpoints.mediaFile.getList);
+  const res = await axiosClient.get(apiEndpoints.mediaFile.getListImage, {withCredentials: true});
   imageList.value = res.data;
 }
 
@@ -81,7 +81,6 @@ async function addImage(event: Event) {
   if (!uploadImage) return
   const uploadData = new FormData()
   uploadData.set("file", uploadImage)
-  uploadData.set("description", "An example file")
   const res = await axios.post(apiEndpoints.mediaFile.create, uploadData)
   if (res.status >= 200 && res.status < 300) {
     await fetchData()
@@ -171,9 +170,9 @@ function triggerFileInput() {
             <div class="flex flex-col w-full">
               <label class="text-gray-700 dark:text-gray-200 font-bold">Font</label>
               <el-select v-model="form.font" placeholder="Select font">
-                <el-option value="Arial, sans-serif" label="Arial, sans-serif"/>
-                <el-option value="Roboto, sans-serif" label="Roboto, sans-serif"/>
-                <!--                <el-option v-for="font in fontList" :value="font._id" :label="font.file_name"/>-->
+                <!--                <el-option value="Arial, sans-serif" label="Arial, sans-serif"/>-->
+                <!--                <el-option value="Roboto, sans-serif" label="Roboto, sans-serif"/>-->
+                <el-option v-for="font in fontList" :value="font._id" :label="font.file_name"/>
               </el-select>
             </div>
             <div class="flex flex-col">

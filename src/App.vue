@@ -3,6 +3,8 @@ import {ref} from 'vue';
 import {apiEndpoints} from '@/apiEndpoints';
 import axios from "axios";
 import Cookies from "js-cookie";
+import {axiosClient} from "@/axiosClient";
+import router from "@/router";
 
 const isDarkMode = ref(false);
 const showFakeDarkMode = ref(false);
@@ -10,8 +12,9 @@ const isHasToken = ref(false)
 if (Cookies.get('feToken')) {
   isHasToken.value = true;
 } else {
-  axios.get(apiEndpoints.auth.getToken)
+  axiosClient.get(apiEndpoints.auth.getToken, {withCredentials: true})
       .then((res) => {
+        console.log(res.data)
         Cookies.set('feToken', res.data.token);
       });
 }
@@ -34,6 +37,14 @@ function toggleDarkMode() {
   }, 1000);
 }
 
+async function logout() {
+  await axiosClient.post(apiEndpoints.auth.logout)
+      .then((res) => {
+        Cookies.remove('feToken');
+        isHasToken.value = false;
+        router.push({name: 'image'})
+      })
+}
 </script>
 
 <template>
@@ -73,6 +84,20 @@ function toggleDarkMode() {
           Image
         </router-link>
         <router-link
+            :to="{ name: 'video' }"
+            class="relative px-2 font-semibold hover:text-yellow-300 transition duration-300 before:content-[''] before:absolute before:-bottom-1 before:left-0 before:w-full before:h-0.5 before:bg-yellow-300 before:scale-x-0 before:origin-left hover:before:scale-x-100 before:transition-transform before:duration-300"
+            active-class="router-link-active" exact-active-class="router-link-exact-active"
+        >
+          Video
+        </router-link>
+        <router-link
+            :to="{ name: 'pdf' }"
+            class="relative px-2 font-semibold hover:text-yellow-300 transition duration-300 before:content-[''] before:absolute before:-bottom-1 before:left-0 before:w-full before:h-0.5 before:bg-yellow-300 before:scale-x-0 before:origin-left hover:before:scale-x-100 before:transition-transform before:duration-300"
+            active-class="router-link-active" exact-active-class="router-link-exact-active"
+        >
+          PDF
+        </router-link>
+        <router-link
             :to="{ name: 'profile' }"
             class="relative px-2 font-semibold hover:text-yellow-300 transition duration-300 before:content-[''] before:absolute before:-bottom-1 before:left-0 before:w-full before:h-0.5 before:bg-yellow-300 before:scale-x-0 before:origin-left hover:before:scale-x-100 before:transition-transform before:duration-300"
             active-class="router-link-active" exact-active-class="router-link-exact-active"
@@ -86,11 +111,12 @@ function toggleDarkMode() {
       >
         Login by Google
       </a>
-      <a v-show="isHasToken"
-         class="absolute right-4 flex items-center justify-between px-3 py-1 h-8 bg-gradient-to-r from-green-400 to-green-600 dark:from-gray-600 dark:to-gray-800 text-white font-semibold rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"
+      <button v-show="isHasToken"
+              class="absolute right-4 flex items-center justify-between px-3 py-1 h-8 bg-gradient-to-r from-green-400 to-green-600 dark:from-gray-600 dark:to-gray-800 text-white font-semibold rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"
+              @click="logout"
       >
         Logout
-      </a>
+      </button>
     </div>
 
     <transition name="fade" mode="out-in">

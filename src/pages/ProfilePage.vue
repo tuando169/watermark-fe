@@ -57,7 +57,7 @@ const user = ref({
   profile_picture: 'https://i.pravatar.cc/150?img=3'
 });
 
-const loading = ref(true); // Thêm trạng thái loading
+const loading = ref(true);
 
 axiosClient.get(apiEndpoints.auth.profile, {withCredentials: true})
     .then((res) => {
