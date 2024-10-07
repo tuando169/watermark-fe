@@ -7,6 +7,9 @@ export const apiEndpoints = {
         edit: baseUrl + 'mediafiles/edit/',
         delete: baseUrl + 'mediafiles/delete/',
         applyWatermark: baseUrl + 'mediafiles/apply-watermark/',
+        font: {
+            getList: baseUrl + 'mediafiles/font/',
+        }
     },
     auth: {
         loginGoogle: baseUrl + 'auth/google/',

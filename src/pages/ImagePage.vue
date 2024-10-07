@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import axios from "axios";
 import {apiEndpoints} from "@/apiEndpoints";
-import type {Image, WatermarkOptions} from "@/types";
+import type {Font, Image, WatermarkOptions} from "@/types";
 import {ElNotification} from "element-plus";
 import {axiosClient} from "@/axiosClient";
 
-// Properly type imageList and selectedImage
 const imageList = ref<Image[]>([]);
-const selectedImage = ref<Image | null>(null);  // Handle null when no image is selected initially
+const fontList = ref<Font[]>([]);
+
+const selectedImage = ref<Image | null>(null);
+const fileInput = ref<HTMLInputElement | null>(null);
 
 const form = ref<WatermarkOptions>({
   type: 'text',
+  font: '',
   color: '',
   content: '',
   opacity: 0,
@@ -20,15 +22,20 @@ const form = ref<WatermarkOptions>({
   size: 0
 });
 
-// Fetch image list from the server
+fetchData()
+getListFont()
+
 async function fetchData() {
   const res = await axiosClient.get(apiEndpoints.mediaFile.getList);
   imageList.value = res.data;
 }
 
-fetchData();
+async function getListFont() {
+  const res = await axiosClient.get(apiEndpoints.mediaFile.font.getList);
+  fontList.value = res.data;
+}
 
-// Handle saving watermark data
+
 async function handleSave() {
   if (!selectedImage.value) {
     ElNotification({
@@ -41,12 +48,12 @@ async function handleSave() {
 
   const uploadData = new FormData();
   uploadData.set('type', form.value.type);
-  uploadData.set('size', form.value.size.toString());  // Convert number to string
+  uploadData.set('size', form.value.size.toString());
   uploadData.set('content', form.value.content);
   uploadData.set('color', form.value.color);
-  uploadData.set('position_x', form.value.position_x.toString());  // Convert number to string
-  uploadData.set('position_y', form.value.position_y.toString());  // Convert number to string
-  uploadData.set('opacity', form.value.opacity.toString());  // Convert number to string
+  uploadData.set('position_x', form.value.position_x.toString());
+  uploadData.set('position_y', form.value.position_y.toString());
+  uploadData.set('opacity', form.value.opacity.toString());
 
   try {
     await axiosClient.post(`${apiEndpoints.mediaFile.applyWatermark}/${selectedImage.value._id}`, uploadData);
@@ -64,13 +71,10 @@ async function handleSave() {
   }
 }
 
-// Function to handle adding a new image
 function addImage(event: Event) {
 
 }
 
-// Trigger file input click
-const fileInput = ref<HTMLInputElement | null>(null);
 
 function triggerFileInput() {
   fileInput.value?.click();
@@ -79,8 +83,7 @@ function triggerFileInput() {
 </script>
 
 <template>
-  <div class="h-full w-full p-4 sm:p-10 relative bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-    <!-- Sidebar (Image List) -->
+  <div class="p-4 sm:p-10 relative bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
     <div
         class="absolute top-0 left-0 h-full w-[64px] sm:w-[88px] group hover:w-[200px] sm:hover:w-[250px] transition-all duration-300 bg-blue-500 dark:bg-gray-800 shadow-xl overflow-hidden">
       <div
@@ -96,7 +99,6 @@ function triggerFileInput() {
             image.file_name
           }}</span>
       </div>
-      <!-- Add Image Button -->
       <div
           class="flex items-center gap-2 sm:gap-4 py-2 sm:pl-4 pl-3 sm:py-3 px-2 sm:px-4 hover:bg-blue-600 dark:hover:bg-gray-700 transition-all cursor-pointer group-hover:shadow-lg"
           @click="triggerFileInput"
@@ -112,17 +114,14 @@ function triggerFileInput() {
       </div>
     </div>
 
-    <!-- Main Layout (Image and Controls) -->
     <div
         class="h-full ml-[64px] sm:ml-[88px] transition-all duration-300 group-hover:ml-[200px] sm:group-hover:ml-[250px] flex-1 flex flex-col sm:flex-row gap-4 sm:gap-8">
-      <!-- Selected Image Display -->
       <div
           class="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 flex flex-col items-center justify-center w-full sm:w-2/3">
         <img v-if="selectedImage" :src="selectedImage.file_path" alt="Selected Image"
              class="rounded-lg object-contain shadow-md max-w-full min-h-[100%]">
       </div>
 
-      <!-- Controls -->
       <div
           class="w-full sm:w-1/3 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 space-y-4 sm:space-y-6 h-full flex flex-col justify-between">
         <h2 class="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-200">Edit Image</h2>
@@ -133,9 +132,17 @@ function triggerFileInput() {
             <el-input v-model="form.content"
                       class="border-gray-300 dark:border-gray-600 py-1 sm:py-2 rounded-lg focus:ring focus:ring-blue-300 dark:focus:ring-gray-600"/>
           </div>
-          <div class="flex flex-col">
-            <label class="text-gray-700 dark:text-gray-200 font-bold">Color</label>
-            <el-color-picker v-model="form.color" class="rounded-lg"/>
+          <div class="flex gap-5">
+            <div class="flex flex-col w-full">
+              <label class="text-gray-700 dark:text-gray-200 font-bold">Font</label>
+              <el-select v-model="form.font" placeholder="Select font">
+                <el-option v-for="font in fontList" :value="font._id" :label="font.file_name"/>
+              </el-select>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-gray-700 dark:text-gray-200 font-bold">Color</label>
+              <el-color-picker v-model="form.color" class="rounded-lg"/>
+            </div>
           </div>
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Position X</label>
@@ -167,5 +174,4 @@ function triggerFileInput() {
 </template>
 
 <style scoped>
-/* Any additional styling can go here */
 </style>

@@ -1,5 +1,6 @@
 export interface WatermarkOptions {
     type: string
+    font: string
     content: string
     position_x: number
     position_y: number
@@ -19,6 +20,18 @@ export interface Image {
     description: string
     watermark_options: WatermarkOptions
     file_watermarked: string
+    created_at: string
+    updated_at: string
+}
+
+export interface Font {
+    _id: string,
+    font_name: string
+    file_name: string
+    file_type: string
+    file_size: number
+    file_path: string
+    description: string
     created_at: string
     updated_at: string
 }
