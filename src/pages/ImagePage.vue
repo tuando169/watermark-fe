@@ -3,7 +3,8 @@ import {ref} from "vue";
 import axios from "axios";
 import {apiEndpoints} from "@/apiEndpoints";
 import type {Image, WatermarkOptions} from "@/types";
-import {ElNotification} from 'element-plus';
+import {ElNotification} from "element-plus";
+import {axiosClient} from "@/axiosClient";
 
 // Properly type imageList and selectedImage
 const imageList = ref<Image[]>([]);
@@ -21,7 +22,7 @@ const form = ref<WatermarkOptions>({
 
 // Fetch image list from the server
 async function fetchData() {
-  const res = await axios.get(apiEndpoints.mediaFile.getList);
+  const res = await axiosClient.get(apiEndpoints.mediaFile.getList);
   imageList.value = res.data;
 }
 
@@ -48,7 +49,7 @@ async function handleSave() {
   uploadData.set('opacity', form.value.opacity.toString());  // Convert number to string
 
   try {
-    await axios.post(`${apiEndpoints.mediaFile.applyWatermark}/${selectedImage.value._id}`, uploadData);
+    await axiosClient.post(`${apiEndpoints.mediaFile.applyWatermark}/${selectedImage.value._id}`, uploadData);
     ElNotification({
       title: 'Success',
       message: 'Apply watermark successfully!',
@@ -63,18 +64,52 @@ async function handleSave() {
   }
 }
 
-function addImage() {
-  // Logic for adding an image
+// Function to handle adding a new image
+function addImage(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('image', file);
+
+  // Send the image to the server
+  axios.post(apiEndpoints.mediaFile.upload, formData)
+      .then(response => {
+        // Add the new image to the image list
+        imageList.value.push(response.data);
+        ElNotification({
+          title: 'Success',
+          message: 'Image uploaded successfully!',
+          type: 'success',
+        });
+      })
+      .catch(() => {
+        ElNotification({
+          title: 'Error',
+          message: 'Failed to upload image.',
+          type: 'error',
+        });
+      });
+}
+
+// Trigger file input click
+const fileInput = ref<HTMLInputElement | null>(null);
+
+function triggerFileInput() {
+  fileInput.value?.click();
 }
 
 </script>
 
 <template>
   <div class="h-full w-full p-4 sm:p-10 relative bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <!-- Sidebar (Image List) -->
     <div
         class="absolute top-0 left-0 h-full w-[64px] sm:w-[88px] group hover:w-[200px] sm:hover:w-[250px] transition-all duration-300 bg-blue-500 dark:bg-gray-800 shadow-xl overflow-hidden">
       <div
-          v-for="image in imageList" :key="image._id"
+          v-for="image in imageList"
+          :key="image._id"
           :class="selectedImage && selectedImage._id === image._id ? 'bg-blue-600 dark:bg-gray-700' : 'bg-blue-500 dark:bg-gray-800'"
           class="flex items-center gap-2 sm:gap-4 py-2 sm:pl-4 pl-3 sm:py-3 px-2 sm:px-4 hover:bg-blue-600 dark:hover:bg-gray-700 transition-all cursor-pointer group-hover:shadow-lg"
           @click="selectedImage = image"
@@ -85,26 +120,33 @@ function addImage() {
             image.file_name
           }}</span>
       </div>
+      <!-- Add Image Button -->
       <div
-          class="flex items-center gap-2 sm:gap-4 py-2 sm:pl-4 pl-3 sm:py-3 px-2 sm:px-4 hover:bg-blue-600 dark:hover:bg-gray-700 transition-all cursor-pointer group-hover:shadow-lg">
+          class="flex items-center gap-2 sm:gap-4 py-2 sm:pl-4 pl-3 sm:py-3 px-2 sm:px-4 hover:bg-blue-600 dark:hover:bg-gray-700 transition-all cursor-pointer group-hover:shadow-lg"
+          @click="triggerFileInput"
+      >
         <svg
             class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover border-2 border-white dark:border-gray-100 group-hover:scale-110 transition-transform duration-200"
-            xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#fff">
+            xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#fff"
+        >
           <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
         </svg>
-        <span class="text-sm sm:text-lg font-medium text-white dark:text-gray-200 truncate group-hover:block hidden">Add image</span>
-        <input type="file" ref="fileInput" class="h-full w-full hidden" @change="addImage">
+        <span class="text-sm sm:text-lg font-medium text-white dark:text-gray-200 truncate group-hover:block hidden">Add Image</span>
+        <input ref="fileInput" type="file" class="hidden" @change="addImage">
       </div>
     </div>
 
+    <!-- Main Layout (Image and Controls) -->
     <div
         class="h-full ml-[64px] sm:ml-[88px] transition-all duration-300 group-hover:ml-[200px] sm:group-hover:ml-[250px] flex-1 flex flex-col sm:flex-row gap-4 sm:gap-8">
+      <!-- Selected Image Display -->
       <div
           class="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 flex flex-col items-center justify-center w-full sm:w-2/3">
         <img v-if="selectedImage" :src="selectedImage.file_path" alt="Selected Image"
              class="rounded-lg object-contain shadow-md max-w-full min-h-[100%]">
       </div>
 
+      <!-- Controls -->
       <div
           class="w-full sm:w-1/3 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 space-y-4 sm:space-y-6 h-full flex flex-col justify-between">
         <h2 class="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-200">Edit Image</h2>
@@ -119,22 +161,18 @@ function addImage() {
             <label class="text-gray-700 dark:text-gray-200 font-bold">Color</label>
             <el-color-picker v-model="form.color" class="rounded-lg"/>
           </div>
-
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Position X</label>
             <el-slider v-model="form.position_x" show-input class="w-full"/>
           </div>
-
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Position Y</label>
             <el-slider v-model="form.position_y" show-input class="w-full"/>
           </div>
-
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Opacity</label>
             <el-slider v-model="form.opacity" show-input class="w-full"/>
           </div>
-
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Size</label>
             <el-slider v-model="form.size" show-input class="w-full"/>
@@ -153,4 +191,5 @@ function addImage() {
 </template>
 
 <style scoped>
+/* Any additional styling can go here */
 </style>
