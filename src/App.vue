@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {ref} from 'vue';
 import {apiEndpoints} from '@/apiEndpoints';
+import axios from "axios";
 
 const isDarkMode = ref(false);
 const showFakeDarkMode = ref(false);
@@ -21,6 +22,11 @@ function toggleDarkMode() {
   setTimeout(() => {
     showFakeDarkMode.value = false;
   }, 1000);
+}
+
+async function login() {
+  const res = await axios.get("https://chisu3000.online/api/v1/auth/google/")
+  console.log(res.data.url)
 }
 </script>
 
@@ -69,11 +75,11 @@ function toggleDarkMode() {
         </router-link>
       </div>
 
-      <a :href="apiEndpoints.auth.loginGoogle"
-         class="absolute right-4 flex items-center justify-between px-3 py-1 h-8 bg-gradient-to-r from-green-400 to-green-600 dark:from-gray-600 dark:to-gray-800 text-white font-semibold rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"
+      <button @click="login"
+              class="absolute right-4 flex items-center justify-between px-3 py-1 h-8 bg-gradient-to-r from-green-400 to-green-600 dark:from-gray-600 dark:to-gray-800 text-white font-semibold rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"
       >
         Login by Google
-      </a>
+      </button>
     </div>
 
     <transition name="fade" mode="out-in">
@@ -83,7 +89,6 @@ function toggleDarkMode() {
 </template>
 
 <style scoped>
-/* Hiệu ứng lớp phủ Dark Mode giả */
 .fake-dark-mode-overlay {
   position: fixed;
   top: 0;

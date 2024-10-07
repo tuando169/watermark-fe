@@ -6,7 +6,6 @@ axios.interceptors.request.use(
     (config) => {
         config.headers.crossorigin = 'use-credentials'
         const token = Cookies.get('123');
-        console.log(token)
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
