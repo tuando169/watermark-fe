@@ -161,7 +161,7 @@ function triggerFileInput() {
           >    {{ form.content }}  </span>
         </div>
         <div class="relative">
-          <video v-if="selectedImage" :src="selectedImage?.file_watermarked" src="/video.mp4" controls
+          <video v-if="selectedImage" :src="selectedImage?.file_watermarked" controls
                  class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[35vh]">
           </video>
         </div>
