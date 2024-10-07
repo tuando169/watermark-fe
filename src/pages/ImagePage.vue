@@ -46,7 +46,7 @@ async function handleSave() {
     });
     return;
   }
-
+  // Proceed with the rest of the code since `selectedImage.value` is guaranteed to exist
   const uploadData = new FormData();
   uploadData.set('type', form.value.type);
   uploadData.set('size', form.value.size.toString());
@@ -72,6 +72,7 @@ async function handleSave() {
   }
 }
 
+
 async function addImage(event: Event) {
   const uploadImage = (event.target as HTMLInputElement).files[0];
   if (!uploadImage) return
@@ -92,8 +93,11 @@ async function addImage(event: Event) {
 
 
 function triggerFileInput() {
-  fileInput.value?.click();
+  if (fileInput.value) {
+    fileInput.value.click();
+  }
 }
+
 
 </script>
 
@@ -104,7 +108,7 @@ function triggerFileInput() {
       <div
           v-for="image in imageList"
           :key="image._id"
-          :class="selectedImage && selectedImage._id === image._id ? 'bg-blue-600 dark:bg-gray-700' : 'bg-blue-500 dark:bg-gray-800'"
+          :class="selectedImage && selectedImage?._id === image._id ? 'bg-blue-600 dark:bg-gray-700' : 'bg-blue-500 dark:bg-gray-800'"
           class="flex items-center gap-2 sm:gap-4 py-2 sm:pl-4 pl-3 sm:py-3 px-2 sm:px-4 hover:bg-blue-600 dark:hover:bg-gray-700 transition-all cursor-pointer group-hover:shadow-lg"
           @click="selectedImage = image"
       >
@@ -133,7 +137,7 @@ function triggerFileInput() {
         class="h-full ml-[64px] sm:ml-[88px] transition-all duration-300 group-hover:ml-[200px] sm:group-hover:ml-[250px] flex-1 flex flex-col sm:flex-row gap-4 sm:gap-8">
       <div
           class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 flex flex-col items-center justify-center w-full sm:w-2/3">
-        <img v-if="selectedImage" :src="selectedImage.file_path" alt="Selected Image"
+        <img v-if="selectedImage" :src="selectedImage?.file_path" alt="Selected Image"
              class="rounded-lg object-contain shadow-md max-w-full min-h-[100%]">
         <div class="relative">
           <img src="/maxresdefault.jpg" alt="Selected Image"
@@ -144,7 +148,7 @@ function triggerFileInput() {
           >    {{ form.content }}  </span>
         </div>
         <div class="relative">
-          <img v-if="selectedImage" :src="selectedImage.file_watermarked" alt="Watermark Image"
+          <img v-if="selectedImage" :src="selectedImage?.file_watermarked" alt="Watermark Image"
                class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[35vh]">
         </div>
 
@@ -176,11 +180,11 @@ function triggerFileInput() {
           </div>
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Position X</label>
-            <el-slider v-model="form.position_x" :max="selectedImage.width" show-input class="w-full"/>
+            <el-slider v-model="form.position_x" :max="selectedImage?.width" show-input class="w-full"/>
           </div>
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Position Y</label>
-            <el-slider v-model="form.position_y" :max="selectedImage.height" show-input class="w-full"/>
+            <el-slider v-model="form.position_y" :max="selectedImage?.height" show-input class="w-full"/>
           </div>
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Opacity</label>
