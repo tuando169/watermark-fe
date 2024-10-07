@@ -9,7 +9,7 @@ import axios from "axios";
 const imageList = ref<Image[]>([]);
 const fontList = ref<Font[]>([]);
 
-const selectedImage = ref<Image | null>({});
+const selectedImage = ref<Image | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const form = ref<WatermarkOptions>({
