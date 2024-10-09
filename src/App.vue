@@ -15,7 +15,6 @@ if (Cookies.get('feToken')) {
   axiosClient.get(apiEndpoints.auth.getToken, {withCredentials: true})
       .then((res) => {
         Cookies.set('feToken', res.data.token, {expires: new Date(res.data.expire_time * 1000)});
-        location.reload()
       });
 }
 
@@ -42,7 +41,6 @@ async function logout() {
       .then((res) => {
         Cookies.remove('feToken');
         isHasToken.value = false;
-        location.reload()
       })
 }
 </script>
@@ -90,13 +88,13 @@ async function logout() {
         >
           Video
         </router-link>
-        <!--        <router-link-->
-        <!--            :to="{ name: 'pdf' }"-->
-        <!--            class="relative px-2 font-semibold hover:text-yellow-300 transition duration-300 before:content-[''] before:absolute before:-bottom-1 before:left-0 before:w-full before:h-0.5 before:bg-yellow-300 before:scale-x-0 before:origin-left hover:before:scale-x-100 before:transition-transform before:duration-300"-->
-        <!--            active-class="router-link-active" exact-active-class="router-link-exact-active"-->
-        <!--        >-->
-        <!--          PDF-->
-        <!--        </router-link>-->
+<!--        <router-link-->
+<!--            :to="{ name: 'pdf' }"-->
+<!--            class="relative px-2 font-semibold hover:text-yellow-300 transition duration-300 before:content-[''] before:absolute before:-bottom-1 before:left-0 before:w-full before:h-0.5 before:bg-yellow-300 before:scale-x-0 before:origin-left hover:before:scale-x-100 before:transition-transform before:duration-300"-->
+<!--            active-class="router-link-active" exact-active-class="router-link-exact-active"-->
+<!--        >-->
+<!--          PDF-->
+<!--        </router-link>-->
         <router-link
             :to="{ name: 'profile' }"
             class="relative px-2 font-semibold hover:text-yellow-300 transition duration-300 before:content-[''] before:absolute before:-bottom-1 before:left-0 before:w-full before:h-0.5 before:bg-yellow-300 before:scale-x-0 before:origin-left hover:before:scale-x-100 before:transition-transform before:duration-300"
