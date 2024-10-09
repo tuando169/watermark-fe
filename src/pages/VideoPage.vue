@@ -11,7 +11,7 @@ const fontList = ref<Font[]>([]);
 const videoRatio = ref(1)
 const selectedVideo = ref<Image | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
-const loading =ref(true)
+const loading = ref(true)
 const form = ref<WatermarkOptions>({
   type: 'text',
   font: '',
@@ -101,9 +101,10 @@ function triggerFileInput() {
   }
 }
 
-function selectVideo(video) {
+function selectVideo(video: Image) {
   selectedVideo.value = video
-  videoRatio.value = selectedVideo.value.height / (window.innerHeight * 0.38)
+  if (selectedVideo.value)
+    videoRatio.value = selectedVideo.value.height / (window.innerHeight * 0.38)
 }
 </script>
 
@@ -113,7 +114,7 @@ function selectVideo(video) {
       <div class="loader"></div>
     </div>
     <div v-if="!loading"
-        class="absolute z-50 top-0 left-0 h-full w-[64px] lg:w-[88px] group hover:w-[200px] lg:hover:w-[250px] transition-all duration-300 bg-blue-500 dark:bg-gray-800 shadow-xl overflow-hidden">
+         class="absolute z-50 top-0 left-0 h-full w-[64px] lg:w-[88px] group hover:w-[200px] lg:hover:w-[250px] transition-all duration-300 bg-blue-500 dark:bg-gray-800 shadow-xl overflow-hidden">
       <div
           v-for="video in videoList"
           :key="video._id"
@@ -144,7 +145,7 @@ function selectVideo(video) {
     </div>
 
     <div v-if="!loading"
-        class="h-full ml-[64px] lg:ml-[88px] transition-all duration-300 group-hover:ml-[200px] lg:group-hover:ml-[250px] flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8">
+         class="h-full ml-[64px] lg:ml-[88px] transition-all duration-300 group-hover:ml-[200px] lg:group-hover:ml-[250px] flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8">
       <div
           class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 lg:p-6 flex flex-col items-center justify-center w-full lg:w-2/3">
         <div class="relative">
