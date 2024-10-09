@@ -14,8 +14,7 @@ if (Cookies.get('feToken')) {
 } else {
   axiosClient.get(apiEndpoints.auth.getToken, {withCredentials: true})
       .then((res) => {
-        console.log(res.data)
-        Cookies.set('feToken', res.data.token);
+        Cookies.set('feToken', res.data.token, {expires: new Date(res.data.expire_time * 1000)});
       });
 }
 
@@ -90,13 +89,13 @@ async function logout() {
         >
           Video
         </router-link>
-        <router-link
-            :to="{ name: 'pdf' }"
-            class="relative px-2 font-semibold hover:text-yellow-300 transition duration-300 before:content-[''] before:absolute before:-bottom-1 before:left-0 before:w-full before:h-0.5 before:bg-yellow-300 before:scale-x-0 before:origin-left hover:before:scale-x-100 before:transition-transform before:duration-300"
-            active-class="router-link-active" exact-active-class="router-link-exact-active"
-        >
-          PDF
-        </router-link>
+<!--        <router-link-->
+<!--            :to="{ name: 'pdf' }"-->
+<!--            class="relative px-2 font-semibold hover:text-yellow-300 transition duration-300 before:content-[''] before:absolute before:-bottom-1 before:left-0 before:w-full before:h-0.5 before:bg-yellow-300 before:scale-x-0 before:origin-left hover:before:scale-x-100 before:transition-transform before:duration-300"-->
+<!--            active-class="router-link-active" exact-active-class="router-link-exact-active"-->
+<!--        >-->
+<!--          PDF-->
+<!--        </router-link>-->
         <router-link
             :to="{ name: 'profile' }"
             class="relative px-2 font-semibold hover:text-yellow-300 transition duration-300 before:content-[''] before:absolute before:-bottom-1 before:left-0 before:w-full before:h-0.5 before:bg-yellow-300 before:scale-x-0 before:origin-left hover:before:scale-x-100 before:transition-transform before:duration-300"
@@ -112,7 +111,7 @@ async function logout() {
         Login by Google
       </a>
       <button v-show="isHasToken"
-              class="absolute right-4 flex items-center justify-between px-3 py-1 h-8 bg-gradient-to-r from-green-400 to-green-600 dark:from-gray-600 dark:to-gray-800 text-white font-semibold rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"
+              class="absolute right-4 flex items-center justify-between px-3 py-1 h-8 bg-gradient-to-r from-red-400 to-red-600 dark:from-gray-600 dark:to-gray-800 text-white font-semibold rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"
               @click="logout"
       >
         Logout

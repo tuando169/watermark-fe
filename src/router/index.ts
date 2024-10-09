@@ -8,6 +8,11 @@ const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
+            name: 'root',
+            path: '/',
+            redirect: {name: 'image'},
+        },
+        {
             path: '/image',
             name: 'image',
             component: ImagePage

@@ -8,14 +8,14 @@ import axios from "axios";
 
 const imageList = ref<Image[]>([]);
 const fontList = ref<Font[]>([]);
-
+const imageRatio = ref(1)
 const selectedImage = ref<Image | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const form = ref<WatermarkOptions>({
   type: 'text',
   font: '',
-  color: '',
+  color: '#FFFFFF',
   content: '',
   opacity: 1.0,
   position_x: 0,
@@ -55,14 +55,15 @@ async function handleSave() {
   uploadData.set('position_x', form.value.position_x.toString());
   uploadData.set('position_y', form.value.position_y.toString());
   uploadData.set('opacity', form.value.opacity.toString());
-
+  uploadData.set('font', form.value.font);
   try {
-    await axiosClient.post(`${apiEndpoints.mediaFile.applyWatermark}/${selectedImage.value._id}`, uploadData);
+    await axiosClient.post(`${apiEndpoints.mediaFile.applyWatermark}${selectedImage.value._id}`, uploadData);
     ElNotification({
       title: 'Success',
       message: 'Apply watermark successfully!',
       type: 'success',
     });
+    await fetchData()
   } catch (error) {
     ElNotification({
       title: 'Error',
@@ -96,11 +97,15 @@ async function addImage(event: Event) {
 
 function triggerFileInput() {
   if (fileInput.value) {
-    fileInput.value.click();
+    fileInput.value.click()
   }
 }
 
-
+function selectImage(image: Image) {
+  selectedImage.value = image
+  imageRatio.value = selectedImage.value.height / (window.innerHeight * 0.38)
+  console.log(imageRatio.value)
+}
 </script>
 
 <template>
@@ -112,7 +117,7 @@ function triggerFileInput() {
           :key="image._id"
           :class="selectedImage && selectedImage?._id === image._id ? 'bg-blue-600 dark:bg-gray-700' : 'bg-blue-500 dark:bg-gray-800'"
           class="flex items-center gap-2 sm:gap-4 py-2 sm:pl-4 pl-3 sm:py-3 px-2 sm:px-4 hover:bg-blue-600 dark:hover:bg-gray-700 transition-all cursor-pointer group-hover:shadow-lg"
-          @click="selectedImage = image"
+          @click="selectImage(image)"
       >
         <img :src="image.file_path" alt="img"
              class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover border-2 border-white dark:border-gray-100 group-hover:scale-110 transition-transform duration-200">
@@ -141,17 +146,17 @@ function triggerFileInput() {
           class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 flex flex-col items-center justify-center w-full sm:w-2/3">
         <div class="relative">
           <img v-if="selectedImage" :src="selectedImage?.file_path" alt="Selected Image"
-               class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[35vh]">
+               class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[38vh]">
           <!--          <img src="/maxresdefault.jpg" alt="Selected Image"-->
           <!--               class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[35vh]">-->
 
           <span class="absolute z-20"
-                :style="{ color: form.color, opacity: form.opacity, fontSize: `${form.size}px`, top: `${form.position_y}px`, left: `${form.position_x}px`, fontFamily: form.font }"
+                :style="{ color: form.color, opacity: form.opacity, fontSize: `${form.size / imageRatio}px`, top: `${form.position_y/imageRatio}px`, left: `${form.position_x/imageRatio}px`, fontFamily: form.font }"
           >    {{ form.content }}  </span>
         </div>
         <div class="relative">
-          <img v-if="selectedImage" :src="selectedImage?.file_watermarked" alt="Watermark Image"
-               class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[35vh]">
+          <img v-if="selectedImage?.file_watermarked" :src="selectedImage?.file_watermarked" alt="Watermark Image"
+               class="rounded-lg object-contain shadow-md max-w-full sm:max-h-[38vh]">
         </div>
 
       </div>
