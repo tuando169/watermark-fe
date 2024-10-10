@@ -2,31 +2,27 @@ import {createRouter, createWebHistory} from 'vue-router'
 import ImagePage from "@/pages/ImagePage.vue";
 import ProfilePage from "@/pages/ProfilePage.vue";
 import VideoPage from "@/pages/VideoPage.vue";
-import PdfPage from "@/pages/PdfPage.vue";
+import AppLayout from "@/layouts/AppLayout.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
+    linkActiveClass: 'active',
     routes: [
         {
-            name: 'root',
             path: '/',
+            name: 'root',
             redirect: {name: 'image'},
+            component: AppLayout,
             children: [
-
                 {
-                    path: 'image',
+                    path: '/image',
                     name: 'image',
                     component: ImagePage
                 },
                 {
-                    path: 'video',
+                    path: '/video',
                     name: 'video',
                     component: VideoPage
-                },
-                {
-                    path: 'pdf',
-                    name: 'pdf',
-                    component: PdfPage
                 },
                 {
                     path: '/profile',
