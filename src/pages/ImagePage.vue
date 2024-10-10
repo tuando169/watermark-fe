@@ -54,7 +54,7 @@ async function handleSave() {
       type: 'error',
     })
   }
-  const fontId = fontList.value.find(font => font.title === form.value.font)?.id;
+  const fontId = fontList.value.find(font => font.title === form.value.font)?._id;
   const uploadData = new FormData();
   uploadData.set('type', form.value.type);
   uploadData.set('size', form.value.size.toString());
