@@ -22,7 +22,7 @@ const form = ref<WatermarkOptions>({
   position_y: 0,
   size: 15
 });
-const displayImage = ref(null);
+const displayImage = ref<any>(null);
 fetchData()
 getListFont()
 
