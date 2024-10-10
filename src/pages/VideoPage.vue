@@ -152,8 +152,8 @@ function deleteVideo(id: string) {
 
 function onVideoLoad() {
   if (displayVideo.value) {
-    const naturalHeight = selectedVideo.value.height;
-    const displayedHeight = displayVideo.value.clientHeight;
+    const naturalHeight = selectedVideo.value?.height;
+    const displayedHeight = displayVideo.value?.clientHeight;
     console.log(naturalHeight, displayedHeight)
     videoRatio.value = naturalHeight / displayedHeight;
   }
