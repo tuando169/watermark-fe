@@ -11,26 +11,29 @@ const router = createRouter({
             name: 'root',
             path: '/',
             redirect: {name: 'image'},
-        },
-        {
-            path: '/image',
-            name: 'image',
-            component: ImagePage
-        },
-        {
-            path: '/video',
-            name: 'video',
-            component: VideoPage
-        },
-        {
-            path: '/pdf',
-            name: 'pdf',
-            component: PdfPage
-        },
-        {
-            path: '/profile',
-            name: 'profile',
-            component: ProfilePage
+            children: [
+
+                {
+                    path: 'image',
+                    name: 'image',
+                    component: ImagePage
+                },
+                {
+                    path: 'video',
+                    name: 'video',
+                    component: VideoPage
+                },
+                {
+                    path: 'pdf',
+                    name: 'pdf',
+                    component: PdfPage
+                },
+                {
+                    path: '/profile',
+                    name: 'profile',
+                    component: ProfilePage
+                },
+            ]
         },
     ]
 })
