@@ -50,8 +50,10 @@ async function handleSave() {
     });
     return;
   }
-  
-  const fontId = fontList.value.find(font => font.title == form.value.font)._id
+
+  const fontId = fontList.value.find(
+    (font) => font.title == form.value.font
+  )?._id;
   const uploadData = new FormData();
   uploadData.set("type", form.value.type);
   uploadData.set("size", form.value.size.toString());
@@ -60,7 +62,7 @@ async function handleSave() {
   uploadData.set("position_x", form.value.position_x.toString());
   uploadData.set("position_y", form.value.position_y.toString());
   uploadData.set("opacity", form.value.opacity.toString());
-  uploadData.set("font", fontId);
+  if (fontId) uploadData.set("font", fontId);
   try {
     await axiosClient.post(
       `${apiEndpoints.mediaFile.applyWatermark}${selectedImage.value._id}`,
