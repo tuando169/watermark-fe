@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import {ref} from "vue";
 import {apiEndpoints} from "@/apiEndpoints";
-import type {Font, Image, WatermarkOptions} from "@/types";
-import {ElNotification} from "element-plus";
+import type {Font, MediaFile, WatermarkOptions} from "@/types";
+import {ElMessageBox, ElNotification} from "element-plus";
 import {axiosClient} from "@/axiosClient";
 import axios from "axios";
 
-const videoList = ref<Image[]>([]);
+const videoList = ref<MediaFile[]>([]);
 const fontList = ref<Font[]>([]);
 const videoRatio = ref(1)
-const selectedVideo = ref<Image | null>(null);
+const selectedVideo = ref<MediaFile | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 const loading = ref(true)
 const form = ref<WatermarkOptions>({
@@ -22,7 +22,7 @@ const form = ref<WatermarkOptions>({
   position_y: 0,
   size: 15
 })
-
+const displayVideo = ref(null)
 fetchData()
 getListFont()
 
@@ -47,7 +47,7 @@ async function handleSave() {
     });
     return;
   }
-  // Proceed with the rest of the code since `selectedImage.value` is guaranteed to exist
+  const fontId = fontList.value.find(font => font.title === form.value.font)?._id;
   const uploadData = new FormData();
   uploadData.set('type', form.value.type);
   uploadData.set('size', form.value.size.toString());
@@ -56,7 +56,7 @@ async function handleSave() {
   uploadData.set('position_x', form.value.position_x.toString());
   uploadData.set('position_y', form.value.position_y.toString());
   uploadData.set('opacity', form.value.opacity.toString());
-
+  if (fontId) uploadData.set('font', fontId);
   try {
     await axiosClient.post(`${apiEndpoints.mediaFile.applyWatermark}/${selectedVideo.value._id}`, uploadData);
     ElNotification({
@@ -101,10 +101,62 @@ function triggerFileInput() {
   }
 }
 
-function selectVideo(video: Image) {
+function selectVideo(video: MediaFile) {
   selectedVideo.value = video
   if (selectedVideo.value)
     videoRatio.value = selectedVideo.value.height / (window.innerHeight * 0.38)
+}
+
+function deleteVideo(id: string) {
+  ElMessageBox.confirm(
+      'Are you sure you want to delete this video?',
+      'Warning',
+      {
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+        type: 'warning',
+      }
+  )
+      .then(() => {
+        axiosClient
+            .delete(`${apiEndpoints.mediaFile.delete}/${id}`)
+            .then(() => {
+              ElNotification({
+                title: 'Success',
+                message: 'Video deleted successfully!',
+                type: 'success',
+              });
+              selectedVideo.value = null;
+              form.value = {
+                type: 'text',
+                font: '',
+                color: '#FFFFFF',
+                content: '',
+                opacity: 1.0,
+                position_x: 0,
+                position_y: 0,
+                size: 15
+              }
+              fetchData();
+            })
+            .catch((error) => {
+              ElNotification({
+                title: 'Error',
+                message: 'Failed to delete the video. Please try again.',
+                type: 'error',
+              });
+            });
+      })
+
+}
+
+function onVideoLoad() {
+  if (displayVideo.value) {
+    const naturalHeight = selectedVideo.value.height;
+    const displayedHeight = displayVideo.value.clientHeight;
+    console.log(naturalHeight, displayedHeight)
+    videoRatio.value = naturalHeight / displayedHeight;
+  }
 }
 </script>
 
@@ -128,6 +180,19 @@ function selectVideo(video: Image) {
         <span class="text-sm lg:text-lg font-medium text-white dark:text-gray-200 truncate group-hover:block hidden">{{
             video.file_name
           }}</span>
+        <span @click="deleteVideo(video._id)"
+              class="p-3 rounded-full group-hover:block hidden bg-red-400 dark:bg-gray-800 text-white dark:text-gray-100 hover:bg-red-500 dark:hover:bg-gray-700 transition-all cursor-pointer">
+          <svg
+              class="transition-transform duration-300 ease-in-out hover:scale-110 hover:rotate-12"
+              xmlns="http://www.w3.org/2000/svg"
+              height="16px"
+              viewBox="0 -960 960 960"
+              width="16px"
+              fill="#fff">
+          <path
+              d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+        </svg>
+        </span>
       </div>
       <div
           class="flex items-center gap-2 lg:gap-4 py-2 lg:pl-4 pl-3 lg:py-3 px-2 lg:px-4 hover:bg-blue-600 dark:hover:bg-gray-700 transition-all cursor-pointer group-hover:shadow-lg"
@@ -150,7 +215,10 @@ function selectVideo(video: Image) {
           class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 lg:p-6 flex flex-col items-center justify-center w-full lg:w-2/3">
         <div class="relative">
           <video v-if="selectedVideo" :src="selectedVideo?.file_path" controls
-                 class="rounded-lg object-contain shadow-md max-w-full lg:max-h-[38vh]">
+                 ref="displayVideo"
+                 class="rounded-lg object-contain shadow-md max-w-full lg:max-h-[38vh]"
+                 @loadedmetadata="onVideoLoad"
+          >
           </video>
           <span class="absolute z-20"
                 :style="{ color: form.color, opacity: form.opacity, fontSize: `${form.size / videoRatio}px`, top: `${form.position_y/videoRatio}px`, left: `${form.position_x/videoRatio}px`, fontFamily: form.font }"
@@ -179,7 +247,7 @@ function selectVideo(video: Image) {
             <div class="flex flex-col w-full">
               <label class="text-gray-700 dark:text-gray-200 font-bold">Font</label>
               <el-select v-model="form.font" placeholder="Select font">
-                <el-option v-for="font in fontList" :value="font._id" :label="font.file_name"/>
+                <el-option v-for="font in fontList" :value="font.title" :label="font.title"/>
               </el-select>
             </div>
             <div class="flex flex-col">

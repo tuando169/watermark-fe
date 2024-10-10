@@ -9,7 +9,7 @@ export interface WatermarkOptions {
   color: string;
 }
 
-export interface Image {
+export interface MediaFile {
   _id: string;
   file_name: string;
   file_type: string;

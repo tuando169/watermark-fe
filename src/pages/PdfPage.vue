@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import {ref} from "vue";
 import {apiEndpoints} from "@/apiEndpoints";
-import type {Font, Image, WatermarkOptions} from "@/types";
+import type {Font, MediaFile, WatermarkOptions} from "@/types";
 import {ElNotification} from "element-plus";
 import {axiosClient} from "@/axiosClient";
 import axios from "axios";
 
-const imageList = ref<Image[]>([]);
+const imageList = ref<MediaFile[]>([]);
 const fontList = ref<Font[]>([]);
 
-const selectedImage = ref<Image | null>(null);
+const selectedImage = ref<MediaFile | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const form = ref<WatermarkOptions>({

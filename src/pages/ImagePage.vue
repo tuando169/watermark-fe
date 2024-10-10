@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import {ref} from "vue";
 import {apiEndpoints} from "@/apiEndpoints";
-import type {Font, Image, WatermarkOptions} from "@/types";
-import {ElNotification} from "element-plus";
+import type {Font, MediaFile, WatermarkOptions} from "@/types";
+import {ElMessageBox, ElNotification} from "element-plus";
 import {axiosClient} from "@/axiosClient";
 import axios from "axios";
 
-const imageList = ref<Image[]>([]);
+const imageList = ref<MediaFile[]>([]);
 const fontList = ref<Font[]>([]);
 const imageRatio = ref(1)
-const selectedImage = ref<Image | null>(null);
+const selectedImage = ref<MediaFile | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 const loading = ref(true);
 const form = ref<WatermarkOptions>({
@@ -22,7 +22,7 @@ const form = ref<WatermarkOptions>({
   position_y: 0,
   size: 15
 });
-
+const displayImage = ref(null);
 fetchData()
 getListFont()
 
@@ -65,7 +65,7 @@ async function handleSave() {
   uploadData.set('opacity', form.value.opacity.toString());
   if (fontId) uploadData.set('font', fontId);
   try {
-    await axiosClient.post(`${apiEndpoints.mediaFile.applyWatermark}${selectedImage.value._id}`, uploadData);
+    await axiosClient.post(`${apiEndpoints.mediaFile.applyWatermark}/${selectedImage.value._id}`, uploadData);
     ElNotification({
       title: 'Success',
       message: 'Apply watermark successfully!',
@@ -106,12 +106,64 @@ async function addImage(event: Event) {
 function triggerFileInput() {
   if (fileInput.value) {
     fileInput.value.click()
+
   }
 }
 
-function selectImage(image: Image) {
+function selectImage(image: MediaFile) {
   selectedImage.value = image
   imageRatio.value = selectedImage.value.height / (window.innerHeight * 0.38)
+}
+
+function deleteImage(id: string) {
+  ElMessageBox.confirm(
+      'Are you sure you want to delete this image?',
+      'Warning',
+      {
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+        type: 'warning',
+      }
+  )
+      .then(() => {
+        axiosClient
+            .delete(`${apiEndpoints.mediaFile.delete}/${id}`)
+            .then(() => {
+              ElNotification({
+                title: 'Success',
+                message: 'Image deleted successfully!',
+                type: 'success',
+              });
+              selectedImage.value = null;
+              form.value = {
+                type: 'text',
+                font: '',
+                color: '#FFFFFF',
+                content: '',
+                opacity: 1.0,
+                position_x: 0,
+                position_y: 0,
+                size: 15
+              }
+              fetchData();
+            })
+            .catch((error) => {
+              ElNotification({
+                title: 'Error',
+                message: 'Failed to delete the image. Please try again.',
+                type: 'error',
+              });
+            });
+      })
+
+}
+
+function onImageLoad() {
+  if (displayImage.value) {
+    const naturalHeight = selectedImage.value.height;
+    const displayedHeight = displayImage.value.clientHeight;
+    imageRatio.value = naturalHeight / displayedHeight;
+  }
 }
 </script>
 
@@ -134,6 +186,20 @@ function selectImage(image: Image) {
         <span class="text-sm lg:text-lg font-medium text-white dark:text-gray-200 truncate group-hover:block hidden">{{
             image.file_name
           }}</span>
+        <span @click="deleteImage(image._id)"
+              class="p-3 rounded-full group-hover:block hidden bg-red-400 dark:bg-gray-800 text-white dark:text-gray-100 hover:bg-red-500 dark:hover:bg-gray-700 transition-all cursor-pointer">
+          <svg
+              class="transition-transform duration-300 ease-in-out hover:scale-110 hover:rotate-12"
+              xmlns="http://www.w3.org/2000/svg"
+              height="16px"
+              viewBox="0 -960 960 960"
+              width="16px"
+              fill="#fff">
+          <path
+              d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+        </svg>
+        </span>
+
       </div>
       <div
           class="flex items-center gap-2 lg:gap-4 py-2 lg:pl-4 pl-3 lg:py-3 px-2 lg:px-4 hover:bg-blue-600 dark:hover:bg-gray-700 transition-all cursor-pointer group-hover:shadow-lg"
@@ -156,7 +222,10 @@ function selectImage(image: Image) {
           class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 lg:p-6 flex flex-col items-center justify-center w-full lg:w-2/3">
         <div class="relative">
           <img v-if="selectedImage" :src="selectedImage?.file_path" alt="Selected Image"
-               class="rounded-lg object-contain shadow-md max-w-full lg:max-h-[38vh]">
+               ref="displayImage"
+               class="rounded-lg object-contain shadow-md max-w-full max-h-[38vh]"
+               @load="onImageLoad"
+          >
           <span class="absolute z-20"
                 :style="{ color: form.color, opacity: form.opacity, fontSize: `${form.size / imageRatio}px`, top: `${form.position_y/imageRatio}px`, left: `${form.position_x/imageRatio}px`, fontFamily: form.font }"
           >    {{ form.content }}  </span>

@@ -7,8 +7,8 @@ export const apiEndpoints = {
         create: baseUrl + 'mediafiles/create',
         getDetail: baseUrl + 'mediafiles/detail/',
         edit: baseUrl + 'mediafiles/edit/',
-        delete: baseUrl + 'mediafiles/delete/',
-        applyWatermark: baseUrl + 'mediafiles/apply-watermark/',
+        delete: baseUrl + 'mediafiles/delete',
+        applyWatermark: baseUrl + 'mediafiles/apply-watermark',
         font: {
             getList: baseUrl + 'mediafiles/font/',
         }
