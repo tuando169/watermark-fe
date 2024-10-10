@@ -2,7 +2,7 @@
 import {ref} from "vue";
 import {apiEndpoints} from "@/apiEndpoints";
 import type {Font, MediaFile, WatermarkOptions} from "@/types";
-import {ElMessageBox, ElNotification} from "element-plus";
+import {ElLoading, ElMessageBox, ElNotification} from "element-plus";
 import {axiosClient} from "@/axiosClient";
 import axios from "axios";
 
@@ -54,6 +54,7 @@ async function handleSave() {
       type: 'error',
     })
   }
+  const loading = ElLoading.service({text: 'Loading'})
   const fontId = fontList.value.find(font => font.title === form.value.font)?._id;
   const uploadData = new FormData();
   uploadData.set('type', form.value.type);
@@ -66,13 +67,15 @@ async function handleSave() {
   if (fontId) uploadData.set('font', fontId);
   try {
     await axiosClient.post(`${apiEndpoints.mediaFile.applyWatermark}/${selectedImage.value._id}`, uploadData);
+    await fetchData()
+    loading.close()
     ElNotification({
       title: 'Success',
       message: 'Apply watermark successfully!',
       type: 'success',
     });
-    await fetchData()
   } catch (error) {
+    loading.close()
     ElNotification({
       title: 'Error',
       message: 'Failed to apply watermark.',
@@ -169,6 +172,17 @@ function onImageLoad() {
   }
 }
 
+function downloadImage(imageUrl: string) {
+  if (!imageUrl) return
+  const link = document.createElement('a');
+  link.href = imageUrl;
+  link.download = 'downloaded_image.jpg';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+
 </script>
 
 <template>
@@ -224,8 +238,8 @@ function onImageLoad() {
          class="h-full ml-[64px] lg:ml-[88px] transition-all duration-300 group-hover:ml-[200px] lg:group-hover:ml-[250px] flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8">
       <div
           class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 lg:p-6 flex flex-col items-center justify-center w-full lg:w-2/3">
-        <div class="relative">
-          <img v-if="selectedImage" :src="selectedImage?.file_path" alt="Selected Image"
+        <div v-if="selectedImage" class="relative">
+          <img :src="selectedImage?.file_path" alt="Selected Image"
                ref="displayImage"
                class="rounded-lg object-contain shadow-md max-w-full max-h-[38vh]"
                @load="onImageLoad"
@@ -233,10 +247,28 @@ function onImageLoad() {
           <span class="absolute z-20"
                 :style="{ color: form.color, opacity: form.opacity, fontSize: `${form.size / imageRatio}px`, top: `${form.position_y/imageRatio}px`, left: `${form.position_x/imageRatio}px`, fontFamily: form.font }"
           >    {{ form.content }}  </span>
+          <el-button
+              class="bg-gradient-to-r from-green-400 to-blue-500 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2 hover:from-green-500 hover:to-blue-600 shadow-lg transition duration-300"
+              @click="downloadImage(selectedImage?.file_path)">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                 stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v4h16v-4m-6 4v-8m4 4l-4-4m-4 4l4-4m0 0V4"/>
+            </svg>
+            <span>Download</span>
+          </el-button>
         </div>
-        <div class="relative">
-          <img v-if="selectedImage?.file_watermarked" :src="selectedImage?.file_watermarked" alt="Watermark Image"
+        <div v-if="selectedImage?.file_watermarked" class="relative">
+          <img :src="selectedImage?.file_watermarked" alt="Watermark Image"
                class="rounded-lg object-contain shadow-md max-w-full lg:max-h-[38vh]">
+          <el-button
+              class="bg-gradient-to-r from-yellow-400 to-red-500 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2 hover:from-yellow-500 hover:to-red-600 shadow-lg transition duration-300"
+              @click="downloadImage(selectedImage?.file_path)">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                 stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v4h16v-4m-6 4v-8m4 4l-4-4m-4 4l4-4m0 0V4"/>
+            </svg>
+            <span>Download Watermarked</span>
+          </el-button>
         </div>
 
       </div>

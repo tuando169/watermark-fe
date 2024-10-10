@@ -2,7 +2,7 @@
 import {ref} from "vue";
 import {apiEndpoints} from "@/apiEndpoints";
 import type {Font, MediaFile, WatermarkOptions} from "@/types";
-import {ElMessageBox, ElNotification} from "element-plus";
+import {ElLoading, ElMessageBox, ElNotification} from "element-plus";
 import {axiosClient} from "@/axiosClient";
 import axios from "axios";
 
@@ -47,6 +47,15 @@ async function handleSave() {
     });
     return;
   }
+  if (!form.value.content || !form.value.font) {
+    ElNotification({
+      title: 'Error',
+      message: 'Please fill in the required fields',
+      type: 'error',
+    })
+  }
+
+  const loading = ElLoading.service({text: 'Loading'})
   const fontId = fontList.value.find(font => font.title === form.value.font)?._id;
   const uploadData = new FormData();
   uploadData.set('type', form.value.type);
@@ -59,12 +68,15 @@ async function handleSave() {
   if (fontId) uploadData.set('font', fontId);
   try {
     await axiosClient.post(`${apiEndpoints.mediaFile.applyWatermark}/${selectedVideo.value._id}`, uploadData);
+    await fetchData()
+    loading.close()
     ElNotification({
       title: 'Success',
       message: 'Apply watermark successfully!',
       type: 'success',
     });
   } catch (error) {
+    loading.close()
     ElNotification({
       title: 'Error',
       message: 'Failed to apply watermark.',
