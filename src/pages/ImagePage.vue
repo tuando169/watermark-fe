@@ -159,12 +159,16 @@ function deleteImage(id: string) {
 }
 
 function onImageLoad() {
-  if (displayImage.value) {
-    const naturalHeight = selectedImage.value?.height;
-    const displayedHeight = displayImage.value?.clientHeight;
-    imageRatio.value = naturalHeight / displayedHeight;
+  if (displayImage.value && selectedImage.value) {
+    const naturalHeight = selectedImage.value.height;
+    const displayedHeight = displayImage.value.clientHeight;
+
+    if (displayedHeight) {
+      imageRatio.value = naturalHeight / displayedHeight;
+    }
   }
 }
+
 </script>
 
 <template>
