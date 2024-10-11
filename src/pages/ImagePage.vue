@@ -188,7 +188,7 @@ function onImageLoad() {
 }
 
 
-function onWatermarkUpload(e) {
+function onWatermarkUpload(e:any) {
   watermarkUpload.value = e.target.files[0]
 }
 </script>
