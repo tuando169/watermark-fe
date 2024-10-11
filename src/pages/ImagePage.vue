@@ -188,7 +188,7 @@ function onImageLoad() {
 }
 
 
-function onWatermarkUpload(e:any) {
+function onWatermarkUpload(e: any) {
   watermarkUpload.value = e.target.files[0]
 }
 </script>
@@ -307,14 +307,14 @@ function onWatermarkUpload(e:any) {
       <div
           class="w-full lg:w-1/3 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 lg:p-6 space-y-4 lg:space-y-6 h-full flex flex-col justify-between">
         <div class="space-y-4 lg:space-y-4 flex-grow">
-          <div class="flex flex-col">
-            <label class="text-gray-700 dark:text-gray-200 font-bold">Type</label>
-            <el-select v-model="form.type"
-                       class="border-gray-300 dark:border-gray-600 py-1 lg:py-2 rounded-lg focus:ring focus:ring-blue-300 dark:focus:ring-gray-600">
-              <el-option value="text" label="Text"/>
-              <el-option value="image" label="Image"/>
-            </el-select>
-          </div>
+          <!--          <div class="flex flex-col">-->
+          <!--            <label class="text-gray-700 dark:text-gray-200 font-bold">Type</label>-->
+          <!--            <el-select v-model="form.type"-->
+          <!--                       class="border-gray-300 dark:border-gray-600 py-1 lg:py-2 rounded-lg focus:ring focus:ring-blue-300 dark:focus:ring-gray-600">-->
+          <!--              <el-option value="text" label="Text"/>-->
+          <!--              <el-option value="image" label="Image"/>-->
+          <!--            </el-select>-->
+          <!--          </div>-->
           <div v-show="form.type == 'text'" class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Content</label>
             <el-input v-model="form.content"
