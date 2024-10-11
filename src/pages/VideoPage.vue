@@ -69,6 +69,7 @@ async function handleSave() {
   try {
     await axiosClient.post(`${apiEndpoints.mediaFile.applyWatermark}/${selectedVideo.value._id}`, uploadData);
     await fetchData()
+    selectedVideo.value = videoList.value.find(video => video._id === selectedVideo.value._id)
     loading.close()
     ElNotification({
       title: 'Success',

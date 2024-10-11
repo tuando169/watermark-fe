@@ -83,6 +83,7 @@ async function handleSave() {
   try {
     await axiosClient.post(`${apiEndpoints.mediaFile.applyWatermark}/${selectedImage.value._id}`, uploadData);
     await fetchData()
+    selectedImage.value = imageList.value.find(image => image._id === selectedImage.value._id);
     loading.close()
     ElNotification({
       title: 'Success',
