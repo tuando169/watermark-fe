@@ -5,12 +5,14 @@ import type {Font, MediaFile, WatermarkOptions} from "@/types";
 import {ElLoading, ElMessageBox, ElNotification} from "element-plus";
 import {axiosClient} from "@/axiosClient";
 import axios from "axios";
+import {Download} from '@element-plus/icons-vue'
 
 const imageList = ref<MediaFile[]>([]);
 const fontList = ref<Font[]>([]);
 const imageRatio = ref(1)
 const selectedImage = ref<MediaFile | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
+const watermarkUpload = ref<HTMLInputElement | null>(null);
 const loading = ref(true);
 const form = ref<WatermarkOptions>({
   type: 'text',
@@ -55,6 +57,19 @@ async function handleSave() {
     })
   }
   const loading = ElLoading.service({text: 'Loading'})
+  // if (form.value.type === 'image') {
+  //   const uploadData = new FormData()
+  //   uploadData.set("file", watermarkUpload.value)
+  //   const res = await axios.post(apiEndpoints.mediaFile.create, uploadData)
+  //   if (res.status >= 200 && res.status < 300) {
+  //     await fetchData()
+  //     ElNotification({
+  //       title: 'Success',
+  //       message: 'Image added successfully!',
+  //       type: 'success'
+  //     })
+  //   }
+  // }
   const fontId = fontList.value.find(font => font.title === form.value.font)?._id;
   const uploadData = new FormData();
   uploadData.set('type', form.value.type);
@@ -172,25 +187,18 @@ function onImageLoad() {
   }
 }
 
-function downloadImage(imageUrl: string) {
-  if (!imageUrl) return
-  const link = document.createElement('a');
-  link.href = imageUrl;
-  link.download = 'downloaded_image.jpg';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+
+function onWatermarkUpload(e) {
+  watermarkUpload.value = e.target.files[0]
 }
-
-
 </script>
 
 <template>
   <div class="p-4 lg:p-10 relative bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-    <div v-if="loading" class="flex justify-center items-center h-[70vh]">
+    <div v-show="loading" class="flex justify-center items-center h-[70vh]">
       <div class="loader"></div>
     </div>
-    <div v-if="!loading"
+    <div v-show="!loading"
          class="absolute z-50 top-0 left-0 h-full w-[64px] lg:w-[88px] group hover:w-[200px] lg:hover:w-[250px] transition-all duration-300 bg-blue-500 dark:bg-gray-800 shadow-xl overflow-hidden">
       <div
           v-for="image in imageList"
@@ -234,54 +242,87 @@ function downloadImage(imageUrl: string) {
       </div>
     </div>
 
-    <div v-if="!loading"
+    <div v-show="!loading"
          class="h-full ml-[64px] lg:ml-[88px] transition-all duration-300 group-hover:ml-[200px] lg:group-hover:ml-[250px] flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8">
       <div
           class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 lg:p-6 flex flex-col items-center justify-center w-full lg:w-2/3">
-        <div v-if="selectedImage" class="relative">
+        <div v-if="selectedImage" class="relative group">
           <img :src="selectedImage?.file_path" alt="Selected Image"
                ref="displayImage"
-               class="rounded-lg object-contain shadow-md max-w-full max-h-[38vh]"
+               class="rounded-lg object-contain shadow-md max-w-full max-h-[38vh] transition-all duration-300 ease-in-out group-hover:brightness-50"
                @load="onImageLoad"
           >
+          <div
+              class="absolute z-30 group-hover:flex gap-5 hidden left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2  cursor-pointer">
+            <a :href="selectedImage?.file_path" download="image.jpg" target="_blank"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" height="80px" viewBox="0 -960 960 960" width="80px" fill="#fff"
+                   class="hover:scale-110 transition-transform duration-300">
+                <path
+                    d="M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z"/>
+              </svg>
+            </a>
+            <span>
+              <svg
+                  xmlns="http://www.w3.org/2000/svg" height="80px" viewBox="0 -960 960 960" width="80px" fill="#fff"
+                  class="hover:scale-110 transition-transform duration-300">
+                <path
+                    d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/>
+              </svg>
+            </span>
+          </div>
+
           <span class="absolute z-20"
                 :style="{ color: form.color, opacity: form.opacity, fontSize: `${form.size / imageRatio}px`, top: `${form.position_y/imageRatio}px`, left: `${form.position_x/imageRatio}px`, fontFamily: form.font }"
-          >    {{ form.content }}  </span>
-          <el-button
-              class="bg-gradient-to-r from-green-400 to-blue-500 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2 hover:from-green-500 hover:to-blue-600 shadow-lg transition duration-300"
-              @click="downloadImage(selectedImage?.file_path)">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                 stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v4h16v-4m-6 4v-8m4 4l-4-4m-4 4l4-4m0 0V4"/>
-            </svg>
-            <span>Download</span>
-          </el-button>
+          >{{ form.content }}</span>
         </div>
-        <div v-if="selectedImage?.file_watermarked" class="relative">
-          <img :src="selectedImage?.file_watermarked" alt="Watermark Image"
-               class="rounded-lg object-contain shadow-md max-w-full lg:max-h-[38vh]">
-          <el-button
-              class="bg-gradient-to-r from-yellow-400 to-red-500 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2 hover:from-yellow-500 hover:to-red-600 shadow-lg transition duration-300"
-              @click="downloadImage(selectedImage?.file_path)">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                 stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v4h16v-4m-6 4v-8m4 4l-4-4m-4 4l4-4m0 0V4"/>
-            </svg>
-            <span>Download Watermarked</span>
-          </el-button>
+
+        <div v-if="selectedImage?.file_watermarked" class="relative group">
+          <img :src="selectedImage?.file_watermarked" alt="Watermark Image" ref="imageElement"
+               class="rounded-lg object-contain shadow-md max-w-full lg:max-h-[38vh] transition-all duration-300 ease-in-out group-hover:brightness-50">
+          <div
+              class="absolute z-30 group-hover:flex gap-5 hidden left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2  cursor-pointer">
+            <a :href="selectedImage?.file_watermarked" target="_blank"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" height="80px" viewBox="0 -960 960 960" width="80px" fill="#fff"
+                   class="hover:scale-110 transition-transform duration-300">
+                <path
+                    d="M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z"/>
+              </svg>
+            </a>
+            <span>
+              <svg
+                  xmlns="http://www.w3.org/2000/svg" height="80px" viewBox="0 -960 960 960" width="80px" fill="#fff"
+                  class="hover:scale-110 transition-transform duration-300">
+                <path
+                    d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/>
+              </svg>
+            </span>
+          </div>
         </div>
+
 
       </div>
 
       <div
           class="w-full lg:w-1/3 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 lg:p-6 space-y-4 lg:space-y-6 h-full flex flex-col justify-between">
-        <h2 class="text-lg lg:text-xl font-bold text-gray-700 dark:text-gray-200">Edit Image</h2>
-
         <div class="space-y-4 lg:space-y-4 flex-grow">
           <div class="flex flex-col">
+            <label class="text-gray-700 dark:text-gray-200 font-bold">Type</label>
+            <el-select v-model="form.type"
+                       class="border-gray-300 dark:border-gray-600 py-1 lg:py-2 rounded-lg focus:ring focus:ring-blue-300 dark:focus:ring-gray-600">
+              <el-option value="text" label="Text"/>
+              <el-option value="image" label="Image"/>
+            </el-select>
+          </div>
+          <div v-show="form.type == 'text'" class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Content</label>
             <el-input v-model="form.content"
                       class="border-gray-300 dark:border-gray-600 py-1 lg:py-2 rounded-lg focus:ring focus:ring-blue-300 dark:focus:ring-gray-600"/>
+          </div>
+          <div v-show="form.type == 'image'" class="flex flex-col">
+            <label class="text-gray-700 dark:text-gray-200 font-bold">Content</label>
+            <input ref="watermarkUpload" type="file" @change="onWatermarkUpload">
           </div>
           <div class="flex gap-5">
             <div class="flex flex-col w-full">
@@ -309,7 +350,7 @@ function downloadImage(imageUrl: string) {
           </div>
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Size</label>
-            <el-slider v-model="form.size" show-input class="w-full"/>
+            <el-slider v-model="form.size" :max="1000" show-input class="w-full"/>
           </div>
         </div>
 

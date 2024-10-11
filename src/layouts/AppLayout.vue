@@ -47,7 +47,7 @@ async function logout() {
 </script>
 
 <template>
-  <div class="h-screen w-screen relative">
+  <div class="h-svh w-full relative">
     <div v-if="showFakeDarkMode" class="fake-dark-mode-overlay"></div>
 
     <div
@@ -97,12 +97,6 @@ async function logout() {
           Profile
         </router-link>
       </div>
-
-<!--      <a v-show="!isHasToken" :href="apiEndpoints.auth.loginGoogle"-->
-<!--         class="absolute right-4 flex items-center justify-between px-3 py-1 h-8 bg-gradient-to-r from-green-400 to-green-600 dark:from-gray-600 dark:to-gray-800 text-white font-semibold rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"-->
-<!--      >-->
-<!--        Login by Google-->
-<!--      </a>-->
       <button v-show="isHasToken"
               class="absolute right-4 flex items-center justify-between px-3 py-1 h-8 bg-gradient-to-r from-red-400 to-red-600 dark:from-gray-600 dark:to-gray-800 text-white font-semibold rounded-full transition-all duration-700 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-2xl"
               @click="logout"
@@ -114,18 +108,18 @@ async function logout() {
     <transition v-show="isHasToken" name="fade" mode="out-in">
       <RouterView class="h-[calc(100vh_-_56px)] w-full"/>
     </transition>
-    <!-- Add this block for a vibrant background and animated login prompt -->
     <div v-show="!isHasToken"
-         class="flex flex-col items-center justify-center h-[calc(100vh_-_56px)] bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-white">
+         class="flex flex-col items-center justify-center h-[calc(100vh_-_56px)] bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-white dark:bg-gradient-to-r dark:from-gray-700 dark:via-gray-900 dark:to-black dark:text-gray-300">
       <div class="text-center">
-        <h1 class="text-5xl font-bold mb-6 animate-bounce">Welcome!</h1>
-        <p class="text-lg font-semibold mb-4">Please log in to continue</p>
+        <h1 class="text-5xl font-bold mb-6 animate-bounce dark:text-gray-100">Welcome!</h1>
+        <p class="text-lg font-semibold mb-4 dark:text-gray-300">Please log in to continue</p>
         <a :href="apiEndpoints.auth.loginGoogle"
-           class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg text-white font-semibold transition-all duration-300 ease-in-out transform hover:scale-105">
+           class="px-6 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-full shadow-lg text-white dark:text-gray-100 font-semibold transition-all duration-300 ease-in-out transform hover:scale-105">
           Login by Google
         </a>
       </div>
     </div>
+
 
   </div>
 </template>

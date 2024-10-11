@@ -1,12 +1,12 @@
 <template>
   <div class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center py-10">
     <div
-        v-if="loading"
+        v-show="loading"
         class="flex justify-center items-center h-48 w-48">
       <div class="loader"></div>
     </div>
     <div
-        v-else
+        v-show="!loading"
         class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden w-full max-w-4xl flex flex-col sm:flex-row">
       <div
           class="sm:w-1/3 bg-gradient-to-b from-blue-600 to-blue-500 dark:from-gray-700 dark:to-gray-600 p-6 text-center flex flex-col items-center justify-center">

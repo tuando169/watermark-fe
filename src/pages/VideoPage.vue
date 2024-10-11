@@ -42,7 +42,7 @@ async function handleSave() {
   if (!selectedVideo.value) {
     ElNotification({
       title: 'Error',
-      message: 'No image selected',
+      message: 'No video selected',
       type: 'error',
     });
     return;
@@ -99,7 +99,7 @@ async function addVideo(event: Event) {
     await fetchData()
     ElNotification({
       title: 'Success',
-      message: 'Image added successfully!',
+      message: 'Video added successfully!',
       type: 'success'
     })
   }
@@ -177,10 +177,10 @@ function onVideoLoad() {
 
 <template>
   <div class="p-4 lg:p-10 relative bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-    <div v-if="loading" class="flex justify-center items-center h-[70vh]">
+    <div v-show="loading" class="flex justify-center items-center h-[70vh]">
       <div class="loader"></div>
     </div>
-    <div v-if="!loading"
+    <div v-show="!loading"
          class="absolute z-50 top-0 left-0 h-full w-[64px] lg:w-[88px] group hover:w-[200px] lg:hover:w-[250px] transition-all duration-300 bg-blue-500 dark:bg-gray-800 shadow-xl overflow-hidden">
       <div
           v-for="video in videoList"
@@ -224,7 +224,7 @@ function onVideoLoad() {
       </div>
     </div>
 
-    <div v-if="!loading"
+    <div v-show="!loading"
          class="h-full ml-[64px] lg:ml-[88px] transition-all duration-300 group-hover:ml-[200px] lg:group-hover:ml-[250px] flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8">
       <div
           class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 lg:p-6 flex flex-col items-center justify-center w-full lg:w-2/3">
@@ -284,7 +284,7 @@ function onVideoLoad() {
           </div>
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Size</label>
-            <el-slider v-model="form.size" show-input class="w-full"/>
+            <el-slider v-model="form.size" :max="1000" show-input class="w-full"/>
           </div>
         </div>
 
