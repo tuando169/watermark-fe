@@ -15,6 +15,7 @@ if (Cookies.get('feToken')) {
   axiosClient.get(apiEndpoints.auth.getToken, {withCredentials: true})
       .then((res) => {
         Cookies.set('feToken', res.data.token, {expires: new Date(res.data.expire_time * 1000)});
+        isHasToken.value = true
         router.push({name: 'profile'})
       });
 }
@@ -47,7 +48,7 @@ async function logout() {
 </script>
 
 <template>
-  <div class="h-svh w-full relative">
+  <div v-show="isHasToken" class="h-svh w-full relative">
     <div v-if="showFakeDarkMode" class="fake-dark-mode-overlay"></div>
 
     <div
@@ -105,22 +106,22 @@ async function logout() {
       </button>
     </div>
 
-    <transition v-show="isHasToken" name="fade" mode="out-in">
+    <transition name="fade" mode="out-in">
       <RouterView class="h-[calc(100vh_-_56px)] w-full"/>
     </transition>
-    <div v-show="!isHasToken"
-         class="flex flex-col items-center justify-center h-[calc(100vh_-_56px)] bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-white dark:bg-gradient-to-r dark:from-gray-700 dark:via-gray-900 dark:to-black dark:text-gray-300">
-      <div class="text-center">
-        <h1 class="text-5xl font-bold mb-6 animate-bounce dark:text-gray-100">Welcome!</h1>
-        <p class="text-lg font-semibold mb-4 dark:text-gray-300">Please log in to continue</p>
-        <a :href="apiEndpoints.auth.loginGoogle"
-           class="px-6 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-full shadow-lg text-white dark:text-gray-100 font-semibold transition-all duration-300 ease-in-out transform hover:scale-105">
-          Login by Google
-        </a>
-      </div>
+
+
+  </div>
+  <div v-show="!isHasToken"
+       class="flex flex-col items-center justify-center h-svh bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-white dark:bg-gradient-to-r dark:from-gray-700 dark:via-gray-900 dark:to-black dark:text-gray-300">
+    <div class="text-center">
+      <h1 class="text-5xl font-bold mb-6 animate-bounce dark:text-gray-100">Welcome!</h1>
+      <p class="text-lg font-semibold mb-4 dark:text-gray-300">Please log in to continue</p>
+      <a :href="apiEndpoints.auth.loginGoogle"
+         class="px-6 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-full shadow-lg text-white dark:text-gray-100 font-semibold transition-all duration-300 ease-in-out transform hover:scale-105">
+        Login by Google
+      </a>
     </div>
-
-
   </div>
 </template>
 
