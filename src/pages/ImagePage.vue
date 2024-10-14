@@ -5,7 +5,6 @@ import type {Font, MediaFile, WatermarkOptions} from "@/types";
 import {ElLoading, ElMessageBox, ElNotification} from "element-plus";
 import {axiosClient} from "@/axiosClient";
 import axios from "axios";
-import {Download} from '@element-plus/icons-vue'
 
 const imageList = ref<MediaFile[]>([]);
 const fontList = ref<Font[]>([]);
@@ -55,6 +54,7 @@ async function handleSave() {
       message: 'Please fill in the required fields',
       type: 'error',
     })
+    return
   }
   const loading = ElLoading.service({text: 'Loading'})
   // if (form.value.type === 'image') {
@@ -133,7 +133,6 @@ function triggerFileInput() {
 
 function selectImage(image: MediaFile) {
   selectedImage.value = image
-  imageRatio.value = selectedImage.value.height / (window.innerHeight * 0.38)
 }
 
 function deleteImage(id: string) {
@@ -249,7 +248,7 @@ function onWatermarkUpload(e: any) {
          class="h-full ml-[64px] lg:ml-[88px] transition-all duration-300 group-hover:ml-[200px] lg:group-hover:ml-[250px] flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8">
       <div
           class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 lg:p-6 flex flex-col items-center justify-center w-full lg:w-2/3">
-        <div v-if="selectedImage" class="relative group">
+        <div v-if="selectedImage" class="relative group overflow-hidden">
           <img :src="selectedImage?.file_path" alt="Selected Image"
                ref="displayImage"
                class="rounded-lg object-contain shadow-md max-w-full max-h-[38vh] transition-all duration-300 ease-in-out group-hover:brightness-50"
@@ -265,19 +264,11 @@ function onWatermarkUpload(e: any) {
                     d="M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z"/>
               </svg>
             </a>
-            <span>
-              <svg
-                  xmlns="http://www.w3.org/2000/svg" height="80px" viewBox="0 -960 960 960" width="80px" fill="#fff"
-                  class="hover:scale-110 transition-transform duration-300">
-                <path
-                    d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/>
-              </svg>
-            </span>
           </div>
 
-          <span class="absolute z-20"
+          <p class="absolute z-20 "
                 :style="{ color: form.color, opacity: form.opacity, fontSize: `${form.size / imageRatio}px`, top: `${form.position_y/imageRatio}px`, left: `${form.position_x/imageRatio}px`, fontFamily: form.font }"
-          >{{ form.content }}</span>
+          >{{ form.content }}</p>
         </div>
 
         <div v-if="selectedImage?.file_watermarked" class="relative group">
@@ -293,14 +284,6 @@ function onWatermarkUpload(e: any) {
                     d="M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z"/>
               </svg>
             </a>
-            <span>
-              <svg
-                  xmlns="http://www.w3.org/2000/svg" height="80px" viewBox="0 -960 960 960" width="80px" fill="#fff"
-                  class="hover:scale-110 transition-transform duration-300">
-                <path
-                    d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/>
-              </svg>
-            </span>
           </div>
         </div>
 
@@ -310,22 +293,22 @@ function onWatermarkUpload(e: any) {
       <div
           class="w-full lg:w-1/3 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 lg:p-6 space-y-4 lg:space-y-6 h-full flex flex-col justify-between">
         <div class="space-y-4 lg:space-y-4 flex-grow">
-          <!--          <div class="flex flex-col">-->
-          <!--            <label class="text-gray-700 dark:text-gray-200 font-bold">Type</label>-->
-          <!--            <el-select v-model="form.type"-->
-          <!--                       class="border-gray-300 dark:border-gray-600 py-1 lg:py-2 rounded-lg focus:ring focus:ring-blue-300 dark:focus:ring-gray-600">-->
-          <!--              <el-option value="text" label="Text"/>-->
-          <!--              <el-option value="image" label="Image"/>-->
-          <!--            </el-select>-->
-          <!--          </div>-->
+<!--          <div class="flex flex-col">-->
+<!--            <label class="text-gray-700 dark:text-gray-200 font-bold">Type</label>-->
+<!--            <el-select v-model="form.type"-->
+<!--                       class="border-gray-300 dark:border-gray-600 py-1 lg:py-2 rounded-lg focus:ring focus:ring-blue-300 dark:focus:ring-gray-600">-->
+<!--              <el-option value="text" label="Text"/>-->
+<!--              <el-option value="image" label="Image"/>-->
+<!--            </el-select>-->
+<!--          </div>-->
           <div v-show="form.type == 'text'" class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Content</label>
             <el-input v-model="form.content"
                       class="border-gray-300 dark:border-gray-600 py-1 lg:py-2 rounded-lg focus:ring focus:ring-blue-300 dark:focus:ring-gray-600"/>
           </div>
           <div v-show="form.type == 'image'" class="flex flex-col">
-            <label class="text-gray-700 dark:text-gray-200 font-bold">Content</label>
-            <input ref="watermarkUpload" type="file" @change="onWatermarkUpload">
+            <label class="text-gray-700 dark:text-gray-200 font-bold">Watermark Image</label>
+            <input ref="watermarkUpload" type="file" class="py-1 lg:py-2" @change="onWatermarkUpload">
           </div>
           <div class="flex gap-5">
             <div class="flex flex-col w-full">
@@ -352,7 +335,8 @@ function onWatermarkUpload(e: any) {
             <el-slider v-model="form.opacity" :min="0" :max="1" :step="0.1" show-input class="w-full"/>
           </div>
           <div class="flex flex-col">
-            <label class="text-gray-700 dark:text-gray-200 font-bold">Size</label>
+            <label v-show="form.type=='text'" class="text-gray-700 dark:text-gray-200 font-bold">Size</label>
+            <label v-show="form.type=='image'" class="text-gray-700 dark:text-gray-200 font-bold">Scale</label>
             <el-slider v-model="form.size" :max="1000" show-input class="w-full"/>
           </div>
         </div>

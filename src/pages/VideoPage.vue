@@ -11,6 +11,7 @@ const fontList = ref<Font[]>([]);
 const videoRatio = ref(1)
 const selectedVideo = ref<MediaFile | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
+const watermarkUpload = ref<HTMLInputElement | null>(null);
 const loading = ref(true)
 const form = ref<WatermarkOptions>({
   type: 'text',
@@ -53,6 +54,7 @@ async function handleSave() {
       message: 'Please fill in the required fields',
       type: 'error',
     })
+    return
   }
 
   const loading = ElLoading.service({text: 'Loading'})
@@ -118,8 +120,6 @@ function triggerFileInput() {
 
 function selectVideo(video: MediaFile) {
   selectedVideo.value = video
-  if (selectedVideo.value)
-    videoRatio.value = selectedVideo.value.height / (window.innerHeight * 0.38)
 }
 
 function deleteVideo(id: string) {
@@ -176,6 +176,9 @@ function onVideoLoad() {
   }
 }
 
+function onWatermarkUpload(e: any) {
+  watermarkUpload.value = e.target.files[0]
+}
 </script>
 
 <template>
@@ -231,7 +234,7 @@ function onVideoLoad() {
          class="h-full ml-[64px] lg:ml-[88px] transition-all duration-300 group-hover:ml-[200px] lg:group-hover:ml-[250px] flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8">
       <div
           class="h-full gap-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 lg:p-6 flex flex-col items-center justify-center w-full lg:w-2/3">
-        <div class="relative">
+        <div class="relative overflow-hidden">
           <video v-if="selectedVideo" :src="selectedVideo?.file_path" controls
                  ref="displayVideo"
                  class="rounded-lg object-contain shadow-md max-w-full lg:max-h-[38vh]"
@@ -242,7 +245,7 @@ function onVideoLoad() {
                 :style="{ color: form.color, opacity: form.opacity, fontSize: `${form.size / videoRatio}px`, top: `${form.position_y/videoRatio}px`, left: `${form.position_x/videoRatio}px`, fontFamily: form.font }"
           >    {{ form.content }}  </span>
         </div>
-        <div class="relative">
+        <div>
           <video v-if="selectedVideo?.file_watermarked" :src="selectedVideo?.file_watermarked" controls
                  class="rounded-lg object-contain shadow-md max-w-full lg:max-h-[38vh]">
           </video>
@@ -253,8 +256,6 @@ function onVideoLoad() {
 
       <div
           class="w-full lg:w-1/3 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 lg:p-6 space-y-4 lg:space-y-6 h-full flex flex-col justify-between">
-        <h2 class="text-lg lg:text-xl font-bold text-gray-700 dark:text-gray-200">Edit Video</h2>
-
         <div class="space-y-4 lg:space-y-4 flex-grow">
           <div class="flex flex-col">
             <label class="text-gray-700 dark:text-gray-200 font-bold">Content</label>
